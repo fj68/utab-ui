@@ -1,0 +1,59 @@
+{% extends "room_list.template" %}
+
+{% block title %}Ballots for Round {{round_n}} - {{ PROJECT_NAME }}{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>Ballots <small> for Round {{round_n}}</small></h1>
+	</div>
+	
+	<!--
+	<table class="table table-bordered table-hover table-sortable">
+		<thead>
+			<tr><th>Status</th><th>Venue</th><th>Name</th><th>Role</th><th>Gov.</th><th>Opp.</th><th>Chair</th><th>Panel</th><th>Trainee</th></tr>
+		</thead>
+		<tbody>
+			{% for item in data %}
+				{% set round = item['round'] %}
+				<tr data-href="/adjs/{{item['name']}}/" class="{% if item['status'] == 'saved' %}success{% elif item['status'] == 'editing' %}warning{% else %}danger{% endif %}">
+					<td>
+						{% if item['status'] == 'saved' %}
+							<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+						{% elif item['status'] == 'editing' %}
+							<span class="glyphicon glyphicon-pencil text-warning" aria-hidden="true"></span>
+						{% endif %}
+					</td>
+					<td><div class="venue">{{round['venue']}}</div></td>
+					<td><div class="name">{{item['name']}}</div></td>
+					<td><div class="role">{{item['role']}}</div></td>
+					<td><div class="gov team">{{round['gov']}}</div></td>
+					<td><div class="opp team">{{round['opp']}}</div></td>
+					<td>
+						{% for chair in round['chair'] %}
+							<div class="adj">{{chair}}</div>
+						{% endfor %}
+					</td>
+					<td>
+						{% for panel in round['panel'] %}
+							<div class="adj">{{panel}}</div>
+						{% endfor %}
+					</td>
+					<td>
+						{% for trainee in round['trainee'] %}
+							<div class="adj">{{trainee}}</div>
+						{% endfor %}
+					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	-->
+	
+	<div class="list-group">
+		{% for item in data %}
+			<a  class="list-group-item list-group-item-{% if item['status'] == 'saved' %}success{% elif item['status'] == 'editing' %}warning{% else %}danger{% endif %}" href="/adjs/{{item['name']}}">
+				<span class="glyphicon glyphicon-{% if item['status'] == 'saved' %}ok{% elif item['status'] == 'editing' %}pencil{% else %}bullhorn{% endif %}"></span> {{item['name']}} {% if item['timediff']|int == 0 %}<span class="glyphicon glyphicon-flag" style="font-size:120%; font-style:italic;"></span>{% elif item['timediff']|int > 0 %}(+ {{ timediff2str(item['timediff']) }}){% endif %}
+			</a>
+		{% endfor %}
+	</div>
+{% endblock %}

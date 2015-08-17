@@ -1,0 +1,57 @@
+{% extends "base.template" %}
+
+{% block title %}General Config - {{ PROJECT_NAME }}{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>General Config <small>Admin</small></h1>
+	</div>
+	
+	<form class="form-horizontal" action="/admin/config/" method="POST">
+		<div class="form-group">
+			<label for="tournament_name" class="col-xs-3 control-label">Tournament Name</label>
+			<div class="col-xs-6">
+				<input type="text" class="form-control" name="tournament_name" id="tournament_name" placeholder="Tournament Name" value="{% if data['tournament_name'] is defined %}{{data['tournament_name']}}{% endif %}" required></input>
+			</div>
+			<div class="col-sm-3">
+				<p class="help-block"></p>
+			</div>
+		</div>
+		
+		{% macro score_range(title, id, help='') %}
+		{% if data['score_range_' + id] is defined %}
+			{% set score_range = data['score_range_' + id] %}
+		{% endif %}
+		<div class="form-group">
+			<label class="col-xs-3 control-label">{{title}}</label>
+			<div class="col-xs-2">
+				<input type="number" class="form-control" name="score_range_{{id}}_min" placeholder="From" step="0.1" value="{% if score_range is defined %}{{score_range['min']}}{% endif %}" required></input>
+			</div>
+			<div class="col-xs-2">
+				<input type="number" class="form-control" name="score_range_{{id}}_max" placeholder="To" step="0.1" value="{% if score_range is defined %}{{score_range['max']}}{% endif %}" required></input>
+			</div>
+			<div class="col-xs-2">
+				<input type="number" class="form-control" name="score_range_{{id}}_step" placeholder="Step" step="0.1" value="{% if score_range is defined %}{{score_range['step']}}{% endif %}" required></input>
+			</div>
+			<div class="col-xs-3">
+				<p class="help-block">{{help}}</p>
+			</div>
+		</div>
+		{% endmacro %}
+		
+		{{ score_range('Score Range (Const)', 'const', 'for Constructive Speakers') }}
+		{{ score_range('Score Range (Reply)', 'reply', 'for Reply Speakers') }}
+		{{ score_range('Score Range (Adjudicators)', 'adj', 'for Adjudicators') }}
+		
+		<hr>
+		
+		<div class="form-group">
+			<div class="col-xs-offset-3 col-xs-9">
+				<div class="btn-group">
+					<input class="btn btn-default" type="submit" value="Save"></input>
+					<a class="btn btn-default" href="/admin/">Cancel</a>
+				</div>
+			</div>
+		</div>
+	</form>
+{% endblock %}

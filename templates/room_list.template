@@ -1,0 +1,27 @@
+{% extends "base.template" %}
+
+{% block head %}
+	{{ super() }}
+	
+	<style>
+		.table-hover tbody tr:hover {
+			cursor:pointer;
+		}
+	</style>
+	
+	<link rel="stylesheet" href="/static/css/tablesorter/style.css" type="text/css">
+	<script src="/static/js/jquery.tablesorter.min.js"></script>
+	<script>
+		$(function(){
+			$(".table-sortable").each(function(idx, elem){
+				$(elem).addClass('tablesorter');
+				$(elem).tablesorter();
+			});
+			
+			$("tr[data-href]").click(function(){
+				location.href = $(this).attr('data-href');
+			});
+		});
+	</script>
+{% endblock %}
+

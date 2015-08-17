@@ -1,0 +1,76 @@
+{% extends "base.template" %}
+
+{%block title %}Admin - {{ PROJECT_NAME }}{% endblock %}
+
+{% block head %}
+	{{ super() }}
+	
+	<style>
+		.form-group:not(:last-child) {
+			min-height:32px;
+		}
+	</style>
+{% endblock %}
+
+{% block dialog %}
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">Data Importer <small>for Round {{round_n+1}}</small></h4>
+	</div>
+	<div class="modal-body">
+	<div class="container-fluid">
+		<form clas="form-horizontal" id="data-form" action="/admin/data-importer/{{round_n+1}}" method="POST" enctype="multipart/form-data">
+			{% macro input_file(lbl, id) %}
+			<div class="form-group">
+				<label for="venue_data" class="col-xs-3 control-label">{{lbl}}</label>
+				<div class="col-xs-9">
+					<input type="file" class="form-control" name="{{id}}_data" id="{{id}}_data" accept="text/csv" required></input>
+				</div>
+				<!--div class="col-sm-3">
+					<p class="help-block"></p>
+				</div-->
+			</div>
+			{% endmacro %}
+			
+			{{ input_file('Teams', 'teams') }}
+			{{ input_file('Draw', 'draw') }}
+		</form>
+	</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		<button type="submit" class="btn btn-primary" form="data-form">Proceed to Round {{round_n+1}} <span class="glyphicon glyphicon-chevron-right"></span></button>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>Admin</h1>
+	</div>
+	
+	<div class="panel panel-primary">
+		<div class="panel-heading" data-toggle="collapse" data-target="#dashboard">
+			<div class="panel-title"><span class="glyphicon glyphicon-dashboard"></span> Dashboard <span class="glyphicon glyphicon-collapse pull-right"></span></div>
+		</div>
+		<div class="panel-collapse collapse in" id="dashboard">
+			<div class="list-group">
+				<a class="list-group-item" href="/admin/config/"><span class="glyphicon glyphicon-cog"></span> General Config</a>
+				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-chevron-right"></span> Proceed to Round {{round_n+1}}</a>
+			</div>
+		</div>
+	</div>
+	
+	{% for n in range(round_n) %}
+	<div class="panel panel-info">
+		<div class="panel-heading collapsed" data-toggle="collapse" data-target="#round{{loop.index}}">
+			<div class="panel-title"><span class="glyphicon glyphicon-inbox"></span> Round {{loop.index}} <span class="glyphicon glyphicon-collapse pull-right"></span></div>
+		</div>
+		<div class="panel-collapse collapse" id="round{{loop.index}}">
+			<div class="list-group">
+				<a class="list-group-item" href="/data/round{{loop.index}}/ballots.csv"><span class="glyphicon glyphicon-floppy-save"></span> Ballots (results.csv)</a>
+				<a class="list-group-item" href="/data/round{{loop.index}}/feedbacks.csv"><span class="glyphicon glyphicon-floppy-save"></span> Judge Evaluations (results_of_adj.csv)</a>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+{% endblock %}
