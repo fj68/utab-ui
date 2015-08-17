@@ -13,14 +13,27 @@ locale.setlocale(locale.LC_ALL, '')
 
 CODENAME="tab"
 
+import os
 from time import time
 from flask import *
 from flask.ext.pymongo import PyMongo
+from pymongo import Connection
 from csv_mongo import CSVDataImporter as DataImporter
 
 app = Flask(CODENAME)
-mongo = PyMongo(app)
 
+MONGO_URL = os.environ.get('MONGOHQ_URL')
+
+if MONGO_URL:
+	# Get a connection
+	connection = Connection(MONGO_URL)
+	# Get the database
+	db = connection[urlparse(MONGO_URL).path[1:]]
+else:
+	# Not on an app with the MongoHQ add-on, do some localhost action
+	mongo = PyMongo(app)
+	connection = Connection('localhost', 27017)
+	db = connection['tab']
 def printer(a):
 	print a
 	return a
@@ -61,9 +74,9 @@ def first(result):
 def config_function_factory(key):
 	def _(value=None):
 		if value is None:
-			return mongo.db.general.find_one()[key]
+			return db.general.find_one()[key]
 		else:
-			mongo.db.general.update({}, {'$set': {key:value}})
+			db.general.update({}, {'$set': {key:value}})
 	return _
 
 config_round_n = config_function_factory('round_n')
@@ -82,7 +95,7 @@ timediff_of = round_db_function_factory('timediff')
 status_of = round_db_function_factory('status')
 
 def round_db(n):
-	return mongo.db['round' + str(n)]
+	return db['round' + str(n)]
 
 @app.route('/')
 @app.route('/home/')
@@ -103,14 +116,14 @@ def debug_data_import():
 		debug_is_first_visit = False
 		round_db(1).remove()
 		round_db(1).insert(debug_data)
-		mongo.db.general.remove()
-		mongo.db.general.insert({'round_n':1, 'adj_timer':None, 'team_timer':None})
+		db.general.remove()
+		db.general.insert({'round_n':1, 'adj_timer':None, 'team_timer':None})
 
 @app.route('/adjs/')
 def adjs_callback():
 	debug_data_import()
 	round_n = config_round_n()
-	data = sort_by_timediff(tolist(mongo.db['round' + str(round_n)].find()))
+	data = sort_by_timediff(tolist(db['round' + str(round_n)].find()))
 	return render_template('adjs.html', PROJECT_NAME=CODENAME, round_n=round_n, data=data, timediff2str=timediff2str)
 
 @app.route('/adjs/<name>/cancel/<int:round_n>')
@@ -129,7 +142,7 @@ def adjs_edit_callback(name):
 	status_of(name, round_n, 'editing')
 	gov = {'name':'Team A', 'speakers': ['Sp1', 'Sp2']}
 	opp = {'name':'Team B', 'speakers': ['Sp3', 'Sp4']}
-	config = mongo.db.config.find_one()
+	config = db.config.find_one()
 	score_range = config['score_range_const']
 	reply_range = config['score_range_reply']
 	feedback_range = config['score_range_adj']
@@ -177,7 +190,7 @@ def admin_callback():
 
 @app.route('/admin/config/', methods=['GET'])
 def admin_config_callback():
-	data = mongo.db.config.find_one()
+	data = db.config.find_one()
 	return render_template('admin_config.html', PROJECT_NAME=CODENAME, data=data)
 
 @app.route('/admin/config/', methods=['POST'])
@@ -204,8 +217,8 @@ def admin_config_post_callback():
 				'step': t_step
 			}
 		
-		mongo.db.config.remove()
-		mongo.db.config.insert(data)
+		db.config.remove()
+		db.config.insert(data)
 		return redirect('/admin/')
 	return redirect('/admin/config/')
 
@@ -217,8 +230,10 @@ def admin_proceed_round_callback(n):
 		data = DataImporter(files['teams_data'])
 		teams = [{'name':team.team_name, 'member':[member.name for member in team.team_member.values()]} for team in data.teams]
 		if data.teams:
-			mongo.db.teams.remove()
-			mongo.db.teams.insert(teams)
+			db.teams.remove()
+			db.teams.insert(teams)
+			
+			config_round_n(n)
 			return redirect('/admin/')
 	return redirect('/admin/#dialog')
 
