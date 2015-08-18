@@ -1,0 +1,220 @@
+{% extends "base.template" %}
+
+{% block title %}[{{data['name']}}] Judge Evaluation for Round {{round_n}}{% endblock %}
+
+{% set round = data['round'] %}
+
+{% block head %}
+	{{ super() }}
+	
+	<script>
+		$(function(){
+			$(window).bind('beforeunload', change_state);
+			$(window).bind('unload', change_state);
+			$('#msgbox').hide();
+		});
+		
+		var is_change_state = false;
+		
+		function save(){
+			try {
+				var data = get_data();
+			} catch(e) {
+				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + e);
+				$('#msgbox').show();
+				return;
+			}
+			
+			$.ajax({
+				url: '/teams/{{data["name"]}}/',
+				type: 'POST',
+				data: JSON.stringify(data),
+				contentType: 'application/json'
+			}).done(function(data){
+				is_change_state = true;
+				location.href = '/teams/';
+			}).fail(function(data){
+				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
+				$('#msgbox').show();
+			});
+		}
+		
+		function get_data(){
+			var _ = {};
+			_['name'] = validate(not_null, $('[name=adj-name]:checked').val(), '#adj-name', 'Select <a href="#adj-name" class="alert-link">Adjudicator\'s Name</a>!');
+			_['score'] = validate(is_number, Number($('[name=adj-score]:checked').val()), '#adj-score', 'Select <a href="#adj-score" class="alert-link">Adjudicator\'s Score!</a>');
+			
+			return _;
+		}
+		
+		function validate(test, value, id, msg){
+			if(test(value)){
+				return value;
+			}else{
+				$(id).addClass('has-error');
+				throw new Error(msg);
+				return null;
+			}
+		}
+		
+		function not_null(value){
+			return (value !== undefined && value !== null && value !== '');
+		}
+		
+		function is_number(value){
+			return (not_null(value) && !isNaN(value));
+		}
+		
+		function change_state(){
+			if(is_change_state){
+				is_change_state = false;
+				$.ajax({
+					url: "/teams/{{data['name']}}/cancel/{{round_n}}",
+					type: 'GET',
+					async: !(window.navigator.userAgent.toLowerCase().indexOf('msie') != 1)
+				}).done(function(data){
+					location.href = '/teams/';
+				});
+			}
+		}
+	</script>
+	
+	<style>
+		.panel-title {
+			font-weight:bold;
+		}
+		
+		.emphasized {
+			font-weight:bold;
+			color:rgb(49, 112, 143);
+		}
+		
+		/*
+		.has-error .btn {
+			color: #a94442 !important;
+			border-color: #a94442 !important;
+			-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		}
+		*/
+		.has-error .btn {
+			border-color: #843534 !important;
+			-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+				      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+		}
+		
+		.scrollable-container {
+			overflow-x:auto;
+			overflow-y:no;
+		}
+		
+		{% macro abs(n) -%}{{n|abs}}{%- endmacro -%}
+		{%- set _range_diff = abs(feedback_range['max'] - feedback_range['min'])|int -%}
+		.scrollable {
+			min-width:{{ _range_diff * 70 }}px;
+		}
+		
+		table.scrollable {
+			margin-bottom:0;
+		}
+		
+		.form-group:last-child {
+			margin-bottom:0;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>{{data['name']}} <small>{{data['side']|title}}</small></h1>
+	</div>
+	
+	<h2>Match-Up <small>for Round {{round_n}}</small></h2>
+	
+	<div class="scrollable-container">
+	<table class="scrollable table table-bordered table-condensed">
+		<thead>
+			<tr><th>Venue</th><th>Gov.</th><th>Opp.</th><th>Chair</th><th>Panel</th><th>Trainee</th></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><div class="venue">{{round['venue']}}</div></td>
+				<td><div class="gov team {% if data['side'] == 'gov' %}emphasized{% endif %}">{{round['gov']}}</div></td>
+				<td><div class="opp team {% if data['side'] == 'opp' %}emphasized{% endif %}">{{round['opp']}}</div></td>
+				<td>
+					{% for chair in round['chair'] %}
+						<div class="adj">{{chair}}</div>
+					{% endfor %}
+				</td>
+				<td>
+					{% for panel in round['panel'] %}
+						<div class="adj">{{panel}}</div>
+					{% endfor %}
+				</td>
+				<td>
+					{% for trainee in round['trainee'] %}
+						<div class="adj">{{trainee}}</div>
+					{% endfor %}
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+	
+	<h2>Feedback <small>Team <span class="glyphicon glyphicon-arrow-right"><!--chevron--></span> Adjudicator</small></h2>
+	
+	<div class="panel panel-info">
+		<div class="panel-heading">
+			<div class="panel-title">Adjudicator who gave you RFD</div>
+		</div>
+		
+		<div class="panel-body">
+			<div class="form-group" id="adj-name">
+				<div class="btn-group btn-group-justified" data-toggle="buttons">
+					{% for chair in round['chair'] %}
+						<label for="adj-name-{{chair}}" class="btn btn-default {% if num_of_adjs == 1 %}active{% endif %}">
+							<input type="radio" name="adj-name" id="adj-name-{{chair}}" value="{{chair}}" {% if num_of_adjs == 1 %}checked{% endif %}></input>
+							<span class="badge pull-left">Chair</span> {{chair}}
+						</label>
+					{% endfor %}
+					{% for panel in round['panel'] %}
+						<label for="adj-name-{{panel}}" class="btn btn-default {% if num_of_adjs == 1 %}active{% endif %}">
+							<input type="radio" name="adj-name" id="adj-name-{{panel}}" value="{{panel}}" {% if num_of_adjs == 1 %}checked{% endif %}></input>
+							<span class="badge pull-left">Panel</span> {{panel}}
+						</label>
+					{% endfor %}
+				</div>
+			</div>
+				<div class="scrollable-container">
+				<div class="form-group" id="adj-score">
+				<div class="scrollable">
+				<div class="btn-group btn-group-justified" id="adj-score" data-toggle="buttons">
+					{% for i in range(feedback_range['min'], feedback_range['max']+1, feedback_range['step']) %}
+						<label for="adj-score-{{i}}" class="btn btn-default">
+							<input type="radio" name="adj-score" id="adj-score-{{i}}" value="{{i}}"></input>
+							{{pre_float_to_str(i)}}
+						</label>
+					{% endfor %}
+				</div>
+				</div>
+				</div>
+				</div>
+		</div>
+	</div>
+	
+	<hr>
+	
+	<div id="msgbox" class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">
+			<span class="glyphicon glyphicon-remove" aris-hidden="true"></span>
+		</button>
+		<span id="msgbox-content"></span>
+	</div>
+	
+	<div class="row">
+		<a href="/teams/{{data['name']}}/cancel/{{round_n}}" class="btn btn-default col-xs-offset-2 col-xs-3">Cancel</a>
+		<a href="javascript:save();" class="btn btn-primary col-xs-offset-2 col-xs-3">Save</a>
+	</div>
+	<br><br><br>
+{% endblock %}
+

@@ -1,6 +1,6 @@
 {% extends "base.template" %}
 
-{% block title %}[{{data['name']}}] Ballot for Round {{round_n}} - {{PROJECT_NAME }}{% endblock %}
+{% block title %}[{{data['name']}}] Ballot for Round {{round_n}}{% endblock %}
 
 {% set round = data['round'] %}
 
@@ -18,6 +18,9 @@
 			} catch(e) {
 				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + e);
 				$('#msgbox').show();
+				
+				throw e;
+				
 				return;
 			}
 			
@@ -37,25 +40,23 @@
 		function get_data(){
 			var _ = {};
 			_['winner'] = validate(not_null, $('[name=winner]:checked').val(), '#winner', 'Select <a href="#winner" class="alert-link">Winner</a>!');
-			_['gov'] = {};
+			_['gov'] = {'name':"{{round['gov']}}", 'total':0};
 			var roles = ['pm', 'mg', 'gr'];
-			var gov_total = 0;
 			for(i in roles){
 				var role = roles[i];
-				_['gov'][i] = {};
-				_['gov'][i]['name'] = validate(not_null, $('[name=' + role + '-name]:checked').val(), '#' + role + '-name', 'Select <a href="#' + role + '-name" class="alert-link">' + role.toUpperCase() + '\'s Name</a>!');
-				_['gov'][i]['score'] = validate(is_number, Number($('[name=' + role + '-score]:checked').val()), '#' + role + '-score', 'Select <a href="#' + role + '-score" class="alert-link">' + role.toUpperCase() + '\'s Score!</a>');
-				gov_total += _['gov'][i]['score'];
+				_['gov'][role] = {};
+				_['gov'][role]['name'] = validate(not_null, $('[name=' + role + '-name]:checked').val(), '#' + role + '-name', 'Select <a href="#' + role + '-name" class="alert-link">' + role.toUpperCase() + '\'s Name</a>!');
+				_['gov'][role]['score'] = validate(is_number, Number($('[name=' + role + '-score]:checked').val()), '#' + role + '-score', 'Select <a href="#' + role + '-score" class="alert-link">' + role.toUpperCase() + '\'s Score!</a>');
+				_['gov']['total'] += _['gov'][role]['score'];
 			}
-			_['opp'] = {};
+			_['opp'] = {'name':"{{round['opp']}}", 'total':0};
 			var roles = ['lo', 'mo', 'or'];
-			var opp_total = 0;
 			for(i in roles){
 				var role = roles[i];
-				_['opp'][i] = {};
-				_['opp'][i]['name'] = validate(not_null, $('[name=' + role + '-name]:checked').val(), '#' + role + '-name', 'Select <a href="#' + role + '-name" class="alert-link">' + role.toUpperCase() + '\'s Name</a>!');
-				_['opp'][i]['score'] = validate(is_number, Number($('[name=' + role + '-score]:checked').val()), '#' + role + '-score', 'Select <a href="#' + role + '-score" class="alert-link">' + role.toUpperCase() + '\'s Score</a>!');
-				opp_total += _['opp'][i]['score'];
+				_['opp'][role] = {};
+				_['opp'][role]['name'] = validate(not_null, $('[name=' + role + '-name]:checked').val(), '#' + role + '-name', 'Select <a href="#' + role + '-name" class="alert-link">' + role.toUpperCase() + '\'s Name</a>!');
+				_['opp'][role]['score'] = validate(is_number, Number($('[name=' + role + '-score]:checked').val()), '#' + role + '-score', 'Select <a href="#' + role + '-score" class="alert-link">' + role.toUpperCase() + '\'s Score</a>!');
+				_['opp']['total'] += _['opp'][role]['score'];
 			}
 			
 			var adjs = [{% for adj in other_adjs %}{{'{'}}role:"{{adj['role']}}", name:"{{ adj['name'] }}"{{'}'}}, {% endfor %}null];
@@ -64,31 +65,31 @@
 			for(i in adjs){
 				var adj = adjs[i];
 				var score = validate(is_number, Number($('[name=' + adj.name + '-score]:checked').val()), '#' + adj.name + '-score', 'Select <a href="#' + adj.name + '-score" class="alert-link">' + adj.name + '\'s Score</a>!')
-				_['adjs'].push({'role':adj.role, 'name':adj.role, 'score':score});
+				_['adjs'].push({'role':adj.role, 'name':adj.name, 'score':score});
 			}
 			
-			if(_['gov'][0]['name'] == _['gov'][1]['name']){
+			if(_['gov']['pm']['name'] == _['gov']['mg']['name']){
 				$('#pm-name').addClass('has-error');
 				$('#mg-name').addClass('has-error');
 				throw new Error('<a href="#pm-name" class="alert-link">PM</a> and <a href="mg-name" class="alert-link">MG</a> shold be different person!');
 			}
 			
-			if(_['opp'][0]['name'] == _['opp'][1]['name']){
+			if(_['opp']['lo']['name'] == _['opp']['mo']['name']){
 				$('#lo-name').addClass('has-error');
 				$('#mo-name').addClass('has-error');
 				throw new Error('<a href="#lo-name" class="alert-link">LO</a> and <a href="mo-name" class="alert-link">MO</a> shold be different person!');
 			}
 			
-			gov_name = "{{round['gov']}}";
-			opp_name = "{{round['opp']}}";
-			if(gov_total == opp_total){
+			_['gov']['win'] = (_['winner'] == _['gov']['name']);
+			_['opp']['win'] = !_['gov']['win'];
+			if(_['gov']['total'] == _['opp']['total']){
 				throw new Error('Tie-Win.');
-			}else if(gov_name == _['winner']){
-				if(opp_total > gov_total){
+			}else if(_['gov']['win']){
+				if(_['opp']['total'] > _['gov']['total']){
 					throw new Error('Low-Win (Opp wins in total team-score though the selected Winner is Gov).');
 				}
-			}else if(opp_name == _['winner']){
-				if(gov_total > opp_total){
+			}else if(_['opp']['win']){
+				if(gov_total > _['opp']['total']){
 					throw new Error('Low-Win (Gov wins in total team-score though the selected Winner is Opp).');
 				}
 			}
@@ -118,6 +119,10 @@
 	<style>
 		.panel-title {
 			font-weight:bold;
+		}
+		.emphasized {
+			font-weight:bold;
+			color:rgb(49, 112, 143);
 		}
 		/*
 		.has-error .btn {
@@ -179,12 +184,12 @@
 				<td><div class="opp team">{{round['opp']}}</div></td>
 				<td>
 					{% for chair in round['chair'] %}
-						<div class="adj">{{chair}}</div>
+						<div class="adj {% if chair == data['name'] %}emphasized{% endif %}">{{chair}}</div>
 					{% endfor %}
 				</td>
 				<td>
 					{% for panel in round['panel'] %}
-						<div class="adj">{{panel}}</div>
+						<div class="adj {% if panel == data['name'] %}emphasized{% endif %}">{{panel}}</div>
 					{% endfor %}
 				</td>
 				<td>
@@ -197,7 +202,7 @@
 	</table>
 	</div>
 	
-	<h2>Ballot <small>for Round {{round_n}}</small></h2>
+	<h2>Ballot <small>{{data['role']|title}} <span class="glyphicon glyphicon-arrow-right"><!--chevron--></span> Teams</small></h2>
 	
 	<div class="panel panel-primary">
 		<div class="panel-heading">
@@ -289,7 +294,15 @@
 	{{ ballot_panel('gr', 'Government Reply', round['gov'], gov['speakers'], reply_range, gov_color) }}
 	{{ ballot_panel('or', 'Oppsition Reply', round['opp'], opp['speakers'], reply_range, opp_color) }}
 	
-	<h2>Judge Evaluation <small>for Round {{round_n}}</small></h2>
+	{%- set fb_to -%}
+		{%- if data['role'] == 'chair' -%}
+			Chair <span class="glyphicon glyphicon-arrow-right"></span> {% if round['panel']|length != 0 %}Panel{% endif %}{% if round['trainee']|length != 0 %}{% if round['panel']|length != 0 %} & {% endif %}Trainee{% endif -%}
+		{%- elif data['role'] == 'panel' -%}
+			Panel <span class="glyphicon glyphicon-arrow-right"></span> {% if round['chair']|length != 0 %}Chair{% endif %}
+		{%- endif -%}
+	{%- endset -%}
+	
+	<h2>Adjudicators Feedback <small>{{ fb_to|safe }}</small></h2>
 	
 	{% set adj_color = 'info' %}
 	{% for adj in other_adjs %}

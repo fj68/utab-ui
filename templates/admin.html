@@ -1,9 +1,28 @@
 {% extends "base.template" %}
 
-{%block title %}Admin - {{ PROJECT_NAME }}{% endblock %}
+{%block title %}Admin Home{% endblock %}
 
 {% block head %}
 	{{ super() }}
+	
+	<script>
+		function rollback(){
+			var n = prompt('[Be Careful] Round to Rollback: '{% if round_n >= 1 %}, {{round_n-1}}{% endif %});
+			if(n != null && n != '' && !isNaN(n)){
+				if(confirm('[Be Careful] Are you really sure to rollback to round ' + n + '?\n\n(Rollback operation will delete and reset data on database!)')){
+					$.ajax({
+						url: '/admin/rollback/' + n,
+						type: 'GET'
+					}).done(function(data){
+						alert('Import data and proceed to next round immidiately.\n\n(Page will be reloaded)');
+						location.reload();
+					}).fail(function(data){
+						alert('Error: ' + data.status + ' ' + data.statusText);
+					});
+				}
+			}
+		}
+	</script>
 	
 	<style>
 		.form-group:not(:last-child) {
@@ -56,6 +75,7 @@
 			<div class="list-group">
 				<a class="list-group-item" href="/admin/config/"><span class="glyphicon glyphicon-cog"></span> General Config</a>
 				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-chevron-right"></span> Proceed to Round {{round_n+1}}</a>
+				<a class="list-group-item" href="javascript:rollback();"><span class="glyphicon glyphicon-repeat"></span> Rollback Round</a>
 			</div>
 		</div>
 	</div>
