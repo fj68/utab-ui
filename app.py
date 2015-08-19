@@ -22,7 +22,7 @@ from csv_mongo import CSVDataImporter as DataImporter
 
 app = Flask(CODENAME)
 
-MONGO_URL = os.environ.get('MONGOHQ_URL')
+MONGO_URL = os.environ.get('MONGOLAB_URI')
 
 if MONGO_URL:
 	# Get a connection
@@ -31,7 +31,7 @@ if MONGO_URL:
 	db = connection[urlparse(MONGO_URL).path[1:]]
 else:
 	# Not on an app with the MongoHQ add-on, do some localhost action
-	mongo = PyMongo(app)
+	#mongo = PyMongo(app)
 	connection = Connection('localhost', 27017)
 	db = connection['tab']
 
@@ -347,22 +347,25 @@ def csv_writer(data):
 	csv.writer(csv_file, quoting=csv.QUOTE_NONNUMERIC).writerows(data)
 	return csv_file.getvalue()
 
-def make_csv_response(data, filename="data.csv"):
+def make_csv_response(data, filename=None):
 	response = make_response()
 	response.data = csv_writer(data)
-	response.headers['Content-Type'] = 'application/octet-stream'
-	response.headers['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
+	if filename is None:
+		response.headers['Content-Type'] = 'text/csv'
+	else:
+		response.headers['Content-Type'] = 'application/octet-stream'
+		response.headers['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
 	return response
 
-@app.route('/data/round<int:n>/ballots.csv')
+@app.route('/data/round<int:n>/results.csv')
 def data_ballots_csv_callback(n):
 	data = []
-	return make_csv_response(data, 'ballots.csv')
+	return make_csv_response(data, 'results.csv')
 
-@app.route('/data/round<int:n>/feedbacks.csv')
+@app.route('/data/round<int:n>/results_of_adj.csv')
 def data_feedbacks_csv_callback(n):
 	data = []
-	return make_csv_response(data, 'feedbacks.csv')
+	return make_csv_response(data, 'results_of_adj.csv')
 
 if __name__ == '__main__':
 	app.run(debug=True)
