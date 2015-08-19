@@ -6,6 +6,17 @@
 	{{ super() }}
 	
 	<script>
+		function maintainance(to){
+			$.ajax({
+				url: '/admin/maintainance/' + to,
+				type: 'GET'
+			}).done(function(data){
+				location.reload();
+			}).fail(function(data){
+				alert('Error: ' + data.status + ' ' + data.statusText);
+			});
+		}
+		
 		function rollback(){
 			var n = prompt('[Be Careful] Round to Rollback: '{% if round_n >= 1 %}, {{round_n-1}}{% endif %});
 			if(n != null && n != '' && !isNaN(n)){
@@ -74,6 +85,7 @@
 		<div class="panel-collapse collapse in" id="dashboard">
 			<div class="list-group">
 				<a class="list-group-item" href="/admin/config/"><span class="glyphicon glyphicon-cog"></span> General Config</a>
+				<a class="list-group-item" href="javascript:maintainance('{% if maintainance == true %}off{% else %}on{% endif %}');"><span class="glyphicon glyphicon-wrench"></span> Switch Maintainance Mode {% if maintainance == true %}Off{% else %}On{% endif %}</a>
 				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-chevron-right"></span> Proceed to Round {{round_n+1}}</a>
 				<a class="list-group-item" href="javascript:rollback();"><span class="glyphicon glyphicon-repeat"></span> Rollback Round</a>
 			</div>

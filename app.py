@@ -13,13 +13,13 @@ locale.setlocale(locale.LC_ALL, '')
 
 CODENAME="tab"
 
-import os, csv, cStringIO
+import os, csv, cStringIO, collections
 from time import time
 from urlparse import urlparse
+
 from flask import *
 from flask.ext.pymongo import PyMongo
 from pymongo import Connection
-from csv_mongo import CSVDataImporter as DataImporter
 
 app = Flask(CODENAME)
 
@@ -85,13 +85,14 @@ def config_function_factory(key):
 			if record:
 				return record[key]
 			else:
-				db.general.insert({'round_n':0, 'adj_timer':None, 'team_timer':None})
+				db.general.insert({'maintainance':True, 'round_n':0, 'adj_timer':None, 'team_timer':None})
 				return config_function_factory(key)()
 		else:
 			db.general.update({}, {'$set': {key:value}})
 	return _
 
 config_round_n = config_function_factory('round_n')
+config_maintainance = config_function_factory('maintainance')
 config_adj_timer = config_function_factory('adj_timer')
 config_team_timer = config_function_factory('team_timer')
 
@@ -119,15 +120,32 @@ def result_db(d, n):
 def team_info(name):
 	return first(db.teams.find({'name':name}))
 
+def flatten(l):
+	i = 0
+	while i < len(l):
+		while isinstance(l[i], collections.Iterable) and not isinstance(l[i], basestring):
+			if not l[i]:
+				l.pop(i)
+				i -= 1
+				break
+			else:
+				l[i:i + 1] = l[i]
+		i += 1
+	return l
+
 @app.route('/')
 @app.route('/home/')
 def index_callback():
+	if config_maintainance():
+		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	return render_template('index.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
 
 @app.route('/adjs/')
 def adjs_callback():
+	if config_maintainance():
+		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = sort_by_timediff(tolist(round_db('adjs', round_n).find()))
@@ -135,6 +153,8 @@ def adjs_callback():
 
 @app.route('/adjs/<name>/cancel/<int:round_n>')
 def adjs_edit_cancel_callback(name, round_n):
+	if config_maintainance():
+		return render_template('maintainance.html')
 	if timediff_of('adjs', name, round_n) == -1:
 		past_status = 'unsaved'
 	else:
@@ -144,6 +164,8 @@ def adjs_edit_cancel_callback(name, round_n):
 
 @app.route('/adjs/<name>/', methods=['GET'])
 def adjs_edit_callback(name):
+	if config_maintainance():
+		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = first(round_db('adjs', round_n).find({'name':name}))
@@ -175,6 +197,8 @@ def adjs_edit_callback(name):
 
 @app.route('/adjs/<name>/', methods=['POST'])
 def adjs_edit_post_callback(name):
+	if config_maintainance():
+		return render_template('maintainance.html')
 	data = request.get_json()
 	timer = config_adj_timer()
 	round_n = config_round_n()
@@ -198,6 +222,8 @@ def adjs_edit_post_callback(name):
 
 @app.route('/teams/')
 def teams_callback():
+	if config_maintainance():
+		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = sort_by_timediff(tolist(round_db('teams', round_n).find()))
@@ -205,6 +231,8 @@ def teams_callback():
 
 @app.route('/teams/<name>/cancel/<int:round_n>')
 def teams_edit_cancel_callback(name, round_n):
+	if config_maintainance():
+		return render_template('maintainance.html')
 	if timediff_of('teams', name, round_n) == -1:
 		past_status = 'unsaved'
 	else:
@@ -214,6 +242,8 @@ def teams_edit_cancel_callback(name, round_n):
 
 @app.route('/teams/<name>/', methods=['GET'])
 def teams_edit_callback(name):
+	if config_maintainance():
+		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = first(round_db('teams', round_n).find({'name':name}))
@@ -225,6 +255,8 @@ def teams_edit_callback(name):
 
 @app.route('/teams/<name>/', methods=['POST'])
 def teams_edit_post_callback(name):
+	if config_maintainance():
+		return render_template('maintainance.html')
 	data = request.get_json()
 	timer = config_team_timer()
 	round_n = config_round_n()
@@ -247,9 +279,9 @@ def teams_edit_post_callback(name):
 @app.route('/admin/home/')
 def admin_callback():
 	tournament_name = config_tournament_name(CODENAME)
-	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
-	return render_template('admin.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
+	maintainance = config_maintainance()
+	return render_template('admin.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, maintainance=maintainance)
 
 @app.route('/admin/config/', methods=['GET'])
 def admin_config_callback():
@@ -291,6 +323,13 @@ def admin_rollback_round_callback(n):
 	round_n = config_round_n()
 	db.general.update({'round_n':round_n}, {'$set':{'round_n':n}})
 	return redirect('/admin/')
+
+@app.route('/admin/maintainance/<to>', methods=['GET'])
+def admin_maintainance_callback(to):
+	round_n = config_round_n()
+	db.general.update({'round_n':round_n}, {'$set':{'maintainance':(to == 'on')}})
+	return redirect('/admin/')
+
 @app.route('/admin/data-importer/<int:n>', methods=['POST'])
 def admin_proceed_round_callback(n):
 	round_n = config_round_n()
@@ -300,16 +339,14 @@ def admin_proceed_round_callback(n):
 			config_round_n(n)
 			
 			return redirect('/admin/')
-	return redirect('/admin/#dialog')
+	return redirect('/admin/')
+
+def not_empty(l):
+	return [n for n in l if n != '']
 
 def import_data(teams_data, draw_data, next_round):
 	teams = csv_reader(teams_data, lambda _, r: {'name':r[0], 'speakers':r[1:3], 'institution_scale':r[3], 'institutions':r[4:]})
-	#draw = csv_reader(draw_data, lambda _, r: {'name':r[0]})
-	draw = [
-		{'venue': '512', 'gov':'Tokyo A', 'opp': 'Tokyo B', 'chair':['Adj1'], 'panel':['Adj2', 'Adj3'], 'trainee':[]},
-		{'venue': '513', 'gov':'Tokyo C', 'opp': 'Tokyo D', 'chair':['Adj4'], 'panel':[], 'trainee':['Adj5']},
-		{'venue': '514', 'gov':'Tokyo E', 'opp': 'Tokyo F', 'chair':['Adj6'], 'panel':['Adj7', 'Adj8'], 'trainee':['Adj9']},
-	]
+	draw = csv_reader(draw_data, lambda _, r: {'gov':r[0], 'opp':r[1], 'chair':not_empty([r[2]]), 'panel':not_empty(r[3:5]), 'venue':r[5], 'trainee':[]})
 	
 	if teams and draw:
 		db.teams.remove()
@@ -336,19 +373,22 @@ def import_data(teams_data, draw_data, next_round):
 		round_db('adjs', next_round).insert(data_adjs)
 		round_db('teams', next_round).remove()
 		round_db('teams', next_round).insert(data_teams)
+		maintainance = config_maintainance()
 		db.general.remove()
-		db.general.insert({'round_n':next_round, 'adj_timer':None, 'team_timer':None})
+		db.general.insert({'round_n':next_round, 'adj_timer':None, 'team_timer':None, 'maintainance':maintainance})
 		result_db('adjs', next_round).remove()
 		result_db('teams', next_round).remove()
 		return True
 	return False
 
-def csv_writer(data):
+def csv_writer(data, header=None):
 	csv_file = cStringIO.StringIO()
-	csv.writer(csv_file, quoting=csv.QUOTE_NONNUMERIC).writerows(data)
+	csv.writer(csv_file).writerows(data)
 	return csv_file.getvalue()
 
-def make_csv_response(data, filename=None):
+def make_csv_response(data, filename=None, header=None):
+	if header:
+		data.insert(0, header)
 	response = make_response()
 	response.data = csv_writer(data)
 	if filename is None:
@@ -360,13 +400,84 @@ def make_csv_response(data, filename=None):
 
 @app.route('/data/round<int:n>/results.csv')
 def data_ballots_csv_callback(n):
+	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
-	return make_csv_response(data, 'results.csv')
+	
+	for item in result_db('teams', n).find():
+		team = team_info(item['name'])
+		team_name = item['name']
+		win = item['win']
+		side = item['side']
+		role = ['pm', 'mg', 'gr'] if side == 'gov' else ['lo', 'mo', 'or']
+		round_info = first(round_db('teams', n).find({'name':team_name}))['round']
+		opponent = round_info['gov' if side == 'opp' else 'opp']
+		side = (side == 'gov')
+		
+		round_results = []
+		for j in range(1, n+1):
+			results = {}
+			for it in result_db('teams', j).find({'name':team_name}):
+				for i in range(3):
+					if not it[role[i]]['name'] in results:
+						results[it[role[i]]['name']] = [0 for k in range(3)]
+					# add scores given by adjs
+					results[it[role[i]]['name']][i] += it[role[i]]['score']
+			round_results.append(results)
+		
+		for speaker in team['speakers']:
+			name = speaker
+			
+			round_scores = [[] for k in range(1, n+1)]
+			for i in range(0, n):
+				round_n_info = round_results[i]
+				for r in round_n_info:
+					if name == r:
+						round_scores[i] = [pre_float_to_str(round_n_info[name][j]) for j in range(3)]
+			
+			data.append([team_name, name] + flatten(round_scores) + [win, opponent, side])
+	
+	seen = set()
+	data = [ x for x in data if x[1] not in seen and not seen.add(x[1])]
+	return make_csv_response(data, 'results.csv', header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
 
 @app.route('/data/round<int:n>/results_of_adj.csv')
 def data_feedbacks_csv_callback(n):
 	data = []
-	return make_csv_response(data, 'results_of_adj.csv')
+	tmp = {}
+	results = {}
+
+	for adj in result_db('adjs', n).find():
+		if not adj['name'] in tmp:
+			tmp[adj['name']] = []
+		tmp[adj['name']].append(adj)
+	
+	for items in tmp.values():
+		for item in items:
+			if not item['name'] in results:
+				results[item['name']] = {'name': item['name'], 'gov':0, 'opp':0, 'panel':[], 'chair':[], 'gov_name':'', 'opp_name':''}
+			sender = item['from']
+		
+			team = tolist(round_db('teams', n).find({'name':sender}))
+			adj = tolist(round_db('adjs', n).find({'name':sender}))
+			if team and len(team) > 0:
+				results[item['name']][team[0]['side'] + '_name'] = team[0]['name']
+				results[item['name']][team[0]['side']] = item['score']
+			elif adj and len(adj) > 0:
+				if not adj[0]['role'] in results[item['name']]:
+					results[item['name']][adj[0]['role']] = []
+				results[item['name']][adj[0]['role']].append(item['score'])
+	
+	for item in results.values():
+		name = item['name']
+		gov = item['gov'] or 0
+		opp = item['opp'] or 0
+		panel1 = item['panel'][0] if item['panel'] and len(item['panel']) > 0 else 0
+		panel2 = item['panel'][1] if item['panel'] and len(item['panel']) > 1 else 0
+		chair = item['chair'][0]  if item['chair'] and len(item['chair']) > 0 else 0
+		gov_name = item['gov_name'] or ""
+		opp_name = item['opp_name'] or ""
+		data.append([name, gov, opp, panel1, panel2, chair, gov_name, opp_name])
+	return make_csv_response(data, 'results_of_adj.csv', header=['name', 'R{0} team1'.format(n), 'R{0} team2'.format(n), 'R{0} panel1'.format(n), 'R{0} panel2'.format(n), 'chair', 'team1', 'team2'])
 
 if __name__ == '__main__':
 	app.run(debug=True)

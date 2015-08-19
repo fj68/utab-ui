@@ -89,7 +89,7 @@
 					throw new Error('Low-Win (Opp wins in total team-score though the selected Winner is Gov).');
 				}
 			}else if(_['opp']['win']){
-				if(gov_total > _['opp']['total']){
+				if(_['gov']['total'] > _['opp']['total']){
 					throw new Error('Low-Win (Gov wins in total team-score though the selected Winner is Opp).');
 				}
 			}
