@@ -15,6 +15,7 @@ CODENAME="tab"
 
 import os, csv, cStringIO
 from time import time
+from urlparse import urlparse
 from flask import *
 from flask.ext.pymongo import PyMongo
 from pymongo import Connection
