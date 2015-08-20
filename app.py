@@ -25,7 +25,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 # init Flask and create app
 app = Flask(CODENAME)
-app.secret_key = 'super secret key'
+app.secret_key = 'futamuranization'
 
 # init MongoDB
 MONGO_URL = os.environ.get('MONGOLAB_URI')
@@ -182,7 +182,7 @@ def flatten(l):
 @app.route('/')
 @app.route('/home/')
 def index_callback():
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -216,7 +216,7 @@ def logout_callback():
 
 @app.route('/draw/')
 def draw_callback():
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -226,7 +226,7 @@ def draw_callback():
 @app.route('/draw/edit')
 @flask_login.login_required
 def draw_edit_callback():
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name()
 	round_n = config_round_n()
@@ -245,7 +245,7 @@ def draw_edit_post_callback():
 
 @app.route('/adjs/')
 def adjs_callback():
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -254,7 +254,7 @@ def adjs_callback():
 
 @app.route('/adjs/<name>/cancel/<int:round_n>')
 def adjs_edit_cancel_callback(name, round_n):
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	if timediff_of('adjs', name, round_n) == -1:
 		past_status = 'unsaved'
@@ -265,7 +265,7 @@ def adjs_edit_cancel_callback(name, round_n):
 
 @app.route('/adjs/<name>/', methods=['GET'])
 def adjs_edit_callback(name):
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -299,7 +299,7 @@ def adjs_edit_callback(name):
 
 @app.route('/adjs/<name>/', methods=['POST'])
 def adjs_edit_post_callback(name):
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	data = request.get_json()
 	timer = config_adj_timer()
@@ -324,7 +324,7 @@ def adjs_edit_post_callback(name):
 
 @app.route('/teams/')
 def teams_callback():
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -333,7 +333,7 @@ def teams_callback():
 
 @app.route('/teams/<name>/cancel/<int:round_n>')
 def teams_edit_cancel_callback(name, round_n):
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	if timediff_of('teams', name, round_n) == -1:
 		past_status = 'unsaved'
@@ -344,7 +344,7 @@ def teams_edit_cancel_callback(name, round_n):
 
 @app.route('/teams/<name>/', methods=['GET'])
 def teams_edit_callback(name):
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -357,7 +357,7 @@ def teams_edit_callback(name):
 
 @app.route('/teams/<name>/', methods=['POST'])
 def teams_edit_post_callback(name):
-	if config_maintainance():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	post_data = request.get_json()
 	timer = config_team_timer()
