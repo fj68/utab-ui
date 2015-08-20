@@ -1,0 +1,148 @@
+{% extends "base.template" %}
+
+{% block title %}Edit Draw{% endblock %}
+
+{% block head %}
+	{{ super() }}
+	
+	<script src="/static/js/redips-drag.min.js"></script>
+	<script>
+		$(function(){
+			REDIPS.drag.init();
+			REDIPS.drag.mark.cname = 'undraggable';
+			$('#msgbox').hide();
+		});
+		
+		function save(){
+			var data = formatter(JSON.parse(REDIPS.drag.saveContent(document.querySelector('#dataset-table'), 'json')));
+			
+			$.ajax({
+				url: '/draw/edit',
+				type: 'POST',
+				data: JSON.stringify(data),
+				contentType: 'application/json'
+			}).done(function(data){
+				location.href = '/draw/';
+			}).fail(function(data){
+				var msgbox = $('#msgbox');
+				msgbox.html('<button type="button" class="close" onclick="$(\'#msgbox\').hide();"><span class="glyphicon glyphicon-remove" aris-hidden="true"></span></button><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
+				msgbox.show();
+			});
+		}
+		
+		function formatter(data){
+			var _ = [];
+			for(var i = 0; i < {{row_n}}; i++){
+				_.push({
+					'venue':null,
+					'gov':null,
+					'opp':null,
+					'chair':[],
+					'panel':[],
+					'trainee':[]
+				});
+			}
+			
+			for(i in data){
+				var item = data[i];
+				var n = item[0];
+				var r = item[1]-1;
+				var c = resolve_cell(item[2]);
+				
+				if(
+					c != 'chair' &&
+					c != 'panel' &&
+					c != 'trainee'
+				){
+					_[r][c] = n;
+				}else{
+					_[r][c].push(n);
+				}
+			}
+			return _;
+		}
+		
+		function resolve_cell(no){
+			switch(no){
+				case 0: return 'venue';
+				case 1: return 'gov';
+				case 2: return 'opp';
+				case 3: return 'chair';
+				case 4: return 'panel';
+				case 5: return 'trainee';
+				default: return undefined;
+			}
+		}
+	</script>
+	
+	<style>
+		.redips-drag {
+			border-radius:5px;
+			box-sizing:border-box;
+			padding:2px 5px;
+			margin:1px auto;
+		}
+		
+		.venue {
+			border-color:#ffcc00;
+		}
+		
+		.team {
+			border-color:#3366cc;
+		}
+		
+		.adj {
+			border-color:#ff3333;
+		}
+		
+		td {
+			text-align:center;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+	<h1>Edit Draw</h1>
+</div>
+
+<div id="msgbox" class="alert alert-danger" role="alert"></div>
+
+<a class="btn btn-default" href="/draw/">Cancel</a>
+<a class="btn btn-success" href="javascript:save();">Save</a>
+
+<br>
+<br>
+
+<div id="redips-drag">
+	<table class="table table-bordered" id="dataset-table">
+		<thead>
+			<tr><th>Venue</th><th>Gov</th><th>Opp</th><th>Chair</th><th>Panel</th><th>Trainee</th></tr>
+		</thead>
+		<tbody>
+			{% for item in data %}
+				<tr>
+					<td><div class="venue redips-drag" id="{{item['venue']}}">{{item['venue']}}</div></td>
+					<td><div class="gov team redips-drag" id="{{item['gov']}}">{{item['gov']}}</div></td>
+					<td><div class="opp team redips-drag" id="{{item['opp']}}">{{item['opp']}}</div></td>
+					<td>
+						{% for chair in item['chair'] %}
+							<div class="adj redips-drag" id="{{chair}}">{{chair}}</div>
+						{% endfor %}
+					</td>
+					<td>
+						{% for panel in item['panel'] %}
+							<div class="adj redips-drag"  id="{{panel}}">{{panel}}</div>
+						{% endfor %}
+					</td>
+					<td>
+						{% for trainee in item['trainee'] %}
+							<div class="adj redips-drag" id="{{trainee}}">{{trainee}}</div>
+						{% endfor %}
+					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}

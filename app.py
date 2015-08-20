@@ -20,9 +20,14 @@ from urlparse import urlparse
 from flask import *
 from flask.ext.pymongo import PyMongo
 from pymongo import Connection
+import flask.ext.login as flask_login
+from werkzeug.security import check_password_hash, generate_password_hash
 
+# init Flask and create app
 app = Flask(CODENAME)
+app.secret_key = 'super secret key'
 
+# init MongoDB
 MONGO_URL = os.environ.get('MONGOLAB_URI')
 
 if MONGO_URL:
@@ -35,6 +40,38 @@ else:
 	#mongo = PyMongo(app)
 	connection = Connection('localhost', 27017)
 	db = connection['tab']
+
+# init Flask Login
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+class User():
+	def __init__(self, name, active=True):
+		self.name = name
+		self.active = active
+	def is_anonymous(self):
+		return False
+	def is_authenticated(self):
+		return True
+	def is_active(self):
+		return self.active
+	def get_id(self):
+		return self.name
+	@staticmethod
+	def validate_login(password_hash, password):
+		return check_password_hash(password_hash, password)
+	@staticmethod
+	def get_login_hash(password):
+		return generate_password_hash(password)
+
+@login_manager.user_loader
+def load_user(user_id):
+	session = session_db().find_one({'name':user_id})
+	return User(session['name']) if session and 'name' in session and session['name'] else None
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+	return redirect('/login/')
 
 def printer(a):
 	print a
@@ -68,6 +105,9 @@ def timediff2str(timediff):
 
 def sort_by_timediff(data):
 	return sorted(sorted(data, key=lambda d: d['name']), key=lambda d: d['timediff'])
+
+def sort_by_venue(data):
+	return sorted(data, key=lambda d: d['venue'])
 
 def tolist(d):
 	_ = []
@@ -117,6 +157,12 @@ def round_db(d, n):
 def result_db(d, n):
 	return db['result' + str(n) + '_' + d]
 
+def comment_db(d, n):
+	return db['comment' + str(n) + '_' + d]
+
+def session_db():
+	return db['sessions']
+
 def team_info(name):
 	return first(db.teams.find({'name':name}))
 
@@ -141,6 +187,61 @@ def index_callback():
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	return render_template('index.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
+
+def next_is_valid(next):
+	return next and next[:1] == '/'
+
+@app.route('/login/', methods=['GET', 'POST'])
+def login_callback():
+	tournament_name = config_tournament_name(CODENAME)
+	data = request.form if request.method == 'POST' else None
+	if data:
+		user = session_db().find_one({'name':data['username']})
+		if user and User.validate_login(user['password'], data['password']):
+			user_obj = User(user['name'])
+			flask_login.login_user(user_obj)
+			flask_login.flash("Logged in successfully", category='success')
+			next = request.args.get('next')
+			if not next_is_valid(next):
+				next = '/'
+			
+			return redirect(next or '/')
+		flask_login.flash("Wrong username or password", category='error')
+	return render_template('login.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name)
+
+@app.route('/logout/')
+def logout_callback():
+	flask_login.logout_user()
+	return redirect('/login/')
+
+@app.route('/draw/')
+def draw_callback():
+	if config_maintainance():
+		return render_template('maintainance.html')
+	tournament_name = config_tournament_name(CODENAME)
+	round_n = config_round_n()
+	data = tolist(db.draw.find())
+	return render_template('draw.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data)
+
+@app.route('/draw/edit')
+@flask_login.login_required
+def draw_edit_callback():
+	if config_maintainance():
+		return render_template('maintainance.html')
+	tournament_name = config_tournament_name()
+	round_n = config_round_n()
+	data = tolist(db.draw.find())
+	return render_template('draw_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data, row_n=len(data), num_of_row=[i+1 for i in range(len(data))])
+
+@app.route('/draw/edit', methods=['POST'])
+@flask_login.login_required
+def draw_edit_post_callback():
+	data = request.get_json()
+	if data is not None:
+		db.draw.remove()
+		for item in data:
+			db.draw.insert({'gov':item['gov'], 'opp':item['opp'], 'chair':item['chair'], 'panel':item['panel'], 'venue':item['venue'], 'trainee':item['trainee']})
+	return redirect('/draw/')
 
 @app.route('/adjs/')
 def adjs_callback():
@@ -169,6 +270,7 @@ def adjs_edit_callback(name):
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = first(round_db('adjs', round_n).find({'name':name}))
+	past_status = status_of('adjs', name, round_n)
 	status_of('adjs', name, round_n, 'editing')
 	gov = team_info(data['round']['gov'])
 	opp = team_info(data['round']['opp'])
@@ -193,7 +295,7 @@ def adjs_edit_callback(name):
 		other_adjs = other_adjs_panel + other_adjs_trainee
 	elif data['role'] == 'panel':
 		other_adjs = other_adjs_chair
-	return render_template('adjs_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, frange=frange, round_n=round_n, data=data, gov=gov, opp=opp, score_range=score_range, reply_range=reply_range, feedback_range=feedback_range, other_adjs=other_adjs, pre_float_to_str=pre_float_to_str)
+	return render_template('adjs_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, past_status=past_status, frange=frange, round_n=round_n, data=data, gov=gov, opp=opp, score_range=score_range, reply_range=reply_range, feedback_range=feedback_range, other_adjs=other_adjs, pre_float_to_str=pre_float_to_str)
 
 @app.route('/adjs/<name>/', methods=['POST'])
 def adjs_edit_post_callback(name):
@@ -257,10 +359,10 @@ def teams_edit_callback(name):
 def teams_edit_post_callback(name):
 	if config_maintainance():
 		return render_template('maintainance.html')
-	data = request.get_json()
+	post_data = request.get_json()
 	timer = config_team_timer()
 	round_n = config_round_n()
-	if data is not None:
+	if post_data is not None:
 		status_of('teams', name, round_n, 'saved')
 		if timer is None:
 			config_team_timer(time())
@@ -270,13 +372,19 @@ def teams_edit_post_callback(name):
 				now = time()
 				timediff = int(now - timer)
 				timediff_of('teams', name, round_n, timediff)
-	for item in round_db('adjs', round_n).find({'name':data['name']}):
-		role = item['role']
-	result_db('adjs', round_n).update({'from':name}, {'from':name, 'name':data['name'], 'role':role, 'score':data['score']}, True)
-	return redirect('/teams/')
+		data = post_data['data']
+		comment = post_data['comment']
+		for item in round_db('adjs', round_n).find({'name':data['name']}):
+			role = item['role']
+		result_db('adjs', round_n).update({'from':name}, {'from':name, 'name':data['name'], 'role':role, 'score':data['score']}, True)
+		if comment and comment['content'] and comment['content'] != '':
+			comment_db('adjs', round_n).update({'from':comment['from']}, {'from':comment['from'], 'to':comment['to'], 'content':comment['content']}, True)
+		return redirect('/teams/')
+	return redirect('/teams/{0}/'.formtat(name))
 
 @app.route('/admin/')
 @app.route('/admin/home/')
+@flask_login.login_required
 def admin_callback():
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -284,12 +392,14 @@ def admin_callback():
 	return render_template('admin.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, maintainance=maintainance)
 
 @app.route('/admin/config/', methods=['GET'])
+@flask_login.login_required
 def admin_config_callback():
 	tournament_name = config_tournament_name(CODENAME)
 	data = db.config.find_one()
 	return render_template('admin_config.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, data=data)
 
 @app.route('/admin/config/', methods=['POST'])
+@flask_login.login_required
 def admin_config_post_callback():
 	_ = request.form
 	if _ is not None:
@@ -319,18 +429,21 @@ def admin_config_post_callback():
 	return redirect('/admin/config/')
 
 @app.route('/admin/rollback/<int:n>', methods=['GET', 'DELETE'])
+@flask_login.login_required
 def admin_rollback_round_callback(n):
 	round_n = config_round_n()
 	db.general.update({'round_n':round_n}, {'$set':{'round_n':n}})
 	return redirect('/admin/')
 
 @app.route('/admin/maintainance/<to>', methods=['GET'])
+@flask_login.login_required
 def admin_maintainance_callback(to):
 	round_n = config_round_n()
 	db.general.update({'round_n':round_n}, {'$set':{'maintainance':(to == 'on')}})
 	return redirect('/admin/')
 
 @app.route('/admin/data-importer/<int:n>', methods=['POST'])
+@flask_login.login_required
 def admin_proceed_round_callback(n):
 	round_n = config_round_n()
 	files = request.files
@@ -381,16 +494,16 @@ def import_data(teams_data, draw_data, next_round):
 		return True
 	return False
 
-def csv_writer(data, header=None):
+def csv_writer(data, header=None, **kwargs):
 	csv_file = cStringIO.StringIO()
-	csv.writer(csv_file).writerows(data)
+	csv.writer(csv_file, **kwargs).writerows(data)
 	return csv_file.getvalue()
 
-def make_csv_response(data, filename=None, header=None):
+def make_csv_response(data, filename=None, header=None, **kwargs):
 	if header:
 		data.insert(0, header)
 	response = make_response()
-	response.data = csv_writer(data)
+	response.data = csv_writer(data, **kwargs)
 	if filename is None:
 		response.headers['Content-Type'] = 'text/csv'
 	else:
@@ -399,6 +512,7 @@ def make_csv_response(data, filename=None, header=None):
 	return response
 
 @app.route('/data/round<int:n>/results.csv')
+@flask_login.login_required
 def data_ballots_csv_callback(n):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
@@ -406,12 +520,12 @@ def data_ballots_csv_callback(n):
 	for item in result_db('teams', n).find():
 		team = team_info(item['name'])
 		team_name = item['name']
-		win = item['win']
+		win = 1 if item['win'] else 0
 		side = item['side']
 		role = ['pm', 'mg', 'gr'] if side == 'gov' else ['lo', 'mo', 'or']
 		round_info = first(round_db('teams', n).find({'name':team_name}))['round']
 		opponent = round_info['gov' if side == 'opp' else 'opp']
-		side = (side == 'gov')
+		side = 1 if side == 'gov' else 0
 		
 		round_results = []
 		for j in range(1, n+1):
@@ -441,6 +555,7 @@ def data_ballots_csv_callback(n):
 	return make_csv_response(data, 'results.csv', header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
 
 @app.route('/data/round<int:n>/results_of_adj.csv')
+@flask_login.login_required
 def data_feedbacks_csv_callback(n):
 	data = []
 	tmp = {}
@@ -478,6 +593,14 @@ def data_feedbacks_csv_callback(n):
 		opp_name = item['opp_name'] or ""
 		data.append([name, gov, opp, panel1, panel2, chair, gov_name, opp_name])
 	return make_csv_response(data, 'results_of_adj.csv', header=['name', 'R{0} team1'.format(n), 'R{0} team2'.format(n), 'R{0} panel1'.format(n), 'R{0} panel2'.format(n), 'chair', 'team1', 'team2'])
+
+@app.route('/data/round<int:n>/comments.csv')
+@flask_login.login_required
+def data_comments_csv_callback(n):
+	data = []
+	for item in comment_db('adjs', n).find():
+		data.append([item['to'], item['from'], item['content'].replace('\n', '\\n').encode('utf-8')])
+	return make_csv_response(data, 'comments.csv', header=['to', 'from', 'comment'], quoting=csv.QUOTE_MINIMAL)
 
 if __name__ == '__main__':
 	app.run(debug=True)

@@ -1,0 +1,26 @@
+{% extends "base.template" %}
+
+{%block title %}Sign in{% endblock %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<div class="panel-title">Admin</div>
+		</div>
+		<div class="panel-body">
+			<form action="/login/" method="POST">
+			<div class="form-group">
+				<label for="username" class="form-label">Username</label>
+				<input type="text" class="form-control" id="username" name="username" placeholder="Enter Username...">
+			</div>
+			<div class="form-group">
+				<label for="password" class="form-label">Password</label>
+				<input type="password" class="form-control" id="password" name="password" placeholder="Enter Password...">
+			</div>
+			<div class="form-group">
+				<input type="submit" class="btn btn-primary" value="Sign in"></input>
+			</div>
+			</form>
+		</div>
+	</div>
+{% endblock %}

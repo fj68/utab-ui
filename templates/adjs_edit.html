@@ -4,13 +4,29 @@
 
 {% set round = data['round'] %}
 
+{% macro nows(s) %}{{s|replace(' ', '-')}}{% endmacro %}
+
 {% block head %}
 	{{ super() }}
 	
 	<script>
 		$(function(){
 			$('#msgbox').hide();
+			window.onunload = canceler;
+			window.onbeforeunload = canceler;
 		});
+		
+		var done_canceler = false;
+		function canceler(){
+			$.ajax({
+				url:'/adjs/{{data["name"]}}/cancel/{{round_n}}',
+				type:'GET',
+				async:(userAgent.indexOf('msie') != -1)
+			}).done(function(data){
+				alert()
+			});
+			return 'wait';
+		}
 		
 		function save(){
 			try {
@@ -35,6 +51,10 @@
 				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
 				$('#msgbox').show();
 			});
+		}
+		
+		function nows(s){
+			return s.replace(/ /g, '-');
 		}
 		
 		function get_data(){
@@ -64,7 +84,7 @@
 			_['adjs'] = [];
 			for(i in adjs){
 				var adj = adjs[i];
-				var score = validate(is_number, Number($('[name=' + adj.name + '-score]:checked').val()), '#' + adj.name + '-score', 'Select <a href="#' + adj.name + '-score" class="alert-link">' + adj.name + '\'s Score</a>!')
+				var score = validate(is_number, Number($('[name=' + nows(adj.name) + '-score]:checked').val()), '#' + nows(adj.name) + '-score', 'Select <a href="#' + nows(adj.name) + '-score" class="alert-link">' + adj.name + '\'s Score</a>!')
 				_['adjs'].push({'role':adj.role, 'name':adj.name, 'score':score});
 			}
 			
@@ -114,6 +134,30 @@
 		function is_number(value){
 			return (not_null(value) && !isNaN(value));
 		}
+		
+		function select_speaker(st, role, speakers){
+			var another = "";
+			for(i in speakers){
+				if(speakers[i] != st){
+					another = speakers[i];
+				}
+			}
+			nd = '#' + role[1] + '-name-' + another;
+			rd = '#' + role[2] + '-name-' + st;
+			
+			document.querySelector(nd).checked = true;
+			document.querySelector(rd).checked = true;
+			$(document.querySelector(nd)).click();
+			$(document.querySelector(rd)).click();
+		}
+		
+		function select_speaker_pm(pm){
+			select_speaker(pm, ['pm', 'mg', 'gr'],[ "{{nows(gov['speakers'][0])}}", "{{nows(gov['speakers'][1])}}" ]);
+		}
+		
+		function select_speaker_lo(lo){
+			select_speaker(lo, ['lo', 'mo', 'or'],[ "{{nows(opp['speakers'][0])}}", "{{nows(opp['speakers'][1])}}" ]);
+		}
 	</script>
 	
 	<style>
@@ -140,7 +184,8 @@
 		
 		.scrollable-container {
 			overflow-x:auto;
-			overflow-y:no;
+			overflow-y:none;
+			margin-bottom:15px;
 		}
 		
 		{% macro abs(n) -%}{{n|abs}}{%- endmacro -%}
@@ -235,8 +280,8 @@
 			<div class="form-group" id="{{id}}-name">
 				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					{% for speaker in speakers %}
-						<label for="{{id}}-name-{{speaker}}" class="btn btn-default">
-							<input type="radio" name="{{id}}-name" id="{{id}}-name-{{speaker}}" value="{{speaker}}"></input>
+						<label for="{{id}}-name-{{nows(speaker)}}" class="btn btn-default" id="{{id}}-name-{{nows(speaker)}}-label" {% if id == 'pm' or id == 'lo' %}onclick="select_speaker_{{id}}('{{nows(speaker)}}');"{% endif %}>
+							<input type="radio" name="{{id}}-name" id="{{id}}-name-{{nows(speaker)}}" value="{{speaker}}"></input>
 							{{speaker}}
 						</label>
 					{% endfor %}
@@ -247,7 +292,7 @@
 				<div class="scrollable">
 				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					{% for i in frange(_range['min'], _range['max']+1, _range['step']) %}
-						<label for="{{id}}-score-{{i}}" class="btn btn-default">
+						<label for="{{id}}-score-{{i}}" class="btn btn-default" id="{{id}}-score-{{i}}-label">
 							<input type="radio" name="{{id}}-score" id="{{id}}-score-{{i}}" value="{{i}}"></input>
 							{{pre_float_to_str(i)}}
 						</label>
@@ -268,20 +313,23 @@
 		</div>
 		
 		<div class="panel-body">
-				<div class="scrollable-container">
-				<div class="form-group" id="{{id}}-score">
+			<div class="scrollable-container">
+			<div class="form-group" id="{{id}}-score">
 				<div class="scrollable">
-				<div class="btn-group btn-group-justified" id="{{id}}-score" data-toggle="buttons">
+				<div class="btn-group btn-group-justified" id="{{nows(id)}}-score" data-toggle="buttons">
 					{% for i in range(feedback_range['min'], feedback_range['max']+1, feedback_range['step']) %}
 						<label for="{{id}}-score-{{i}}" class="btn btn-default">
-							<input type="radio" name="{{id}}-score" id="{{id}}-score-{{i}}" value="{{i}}"></input>
+							<input type="radio" name="{{nows(id)}}-score" id="{{id}}-score-{{i}}" value="{{i}}"></input>
 							{{pre_float_to_str(i)}}
 						</label>
 					{% endfor %}
 				</div>
 				</div>
-				</div>
-				</div>
+			</div>
+			</div>
+			<!--div class="form-group" id="{{id}}-comment">
+				<textarea id="{{id}}-comment-content" class="form-control" rows="3" placeholder="Write your comment here..."></textarea>
+			</div-->
 		</div>
 	</div>
 	{%- endmacro %}
@@ -302,12 +350,15 @@
 		{%- endif -%}
 	{%- endset -%}
 	
+	{% if round['panel']|length != 0 or round['trainee']|length != 0 %}
 	<h2>Adjudicators Feedback <small>{{ fb_to|safe }}</small></h2>
 	
 	{% set adj_color = 'info' %}
 	{% for adj in other_adjs %}
 		{{ feedback_panel(adj['role'], adj['name'], adj_color) }}
 	{% endfor %}
+	
+	{% endif %}
 	
 	<hr>
 	

@@ -12,13 +12,16 @@
 			$(window).bind('beforeunload', change_state);
 			$(window).bind('unload', change_state);
 			$('#msgbox').hide();
+			$('.spacer').hide();
+			$('#adj-score').hide();
+			$('#adj-comment').hide();
 		});
 		
 		var is_change_state = false;
 		
 		function save(){
 			try {
-				var data = get_data();
+				var data = {'data': get_data(), 'comment':get_comment()};
 			} catch(e) {
 				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + e);
 				$('#msgbox').show();
@@ -43,6 +46,15 @@
 			var _ = {};
 			_['name'] = validate(not_null, $('[name=adj-name]:checked').val(), '#adj-name', 'Select <a href="#adj-name" class="alert-link">Adjudicator\'s Name</a>!');
 			_['score'] = validate(is_number, Number($('[name=adj-score]:checked').val()), '#adj-score', 'Select <a href="#adj-score" class="alert-link">Adjudicator\'s Score!</a>');
+			
+			return _;
+		}
+		
+		function get_comment(){
+			var _ = {};
+			_['content'] = $('#adj-comment-content').val();
+			_['to'] = validate(not_null, $('[name=adj-name]:checked').val(), '#adj-name', 'Select <a href="#adj-name" class="alert-link">Adjudicator\'s Name</a>!');
+			_['from'] = "{{data['name']}}"
 			
 			return _;
 		}
@@ -77,6 +89,12 @@
 				});
 			}
 		}
+		
+		function show_input(id){
+			$('.spacer').show();
+			$('#adj-score').show('slow');
+			$('#adj-comment').show('slow');
+		}
 	</script>
 	
 	<style>
@@ -87,6 +105,10 @@
 		.emphasized {
 			font-weight:bold;
 			color:rgb(49, 112, 143);
+		}
+		
+		.btn-group-vertical {
+			width:100%!important;
 		}
 		
 		/*
@@ -118,7 +140,12 @@
 			margin-bottom:0;
 		}
 		
-		.form-group:last-child {
+		.spacer {
+			height:15px;
+		}
+		
+		.form-group:last-child,
+		.form-group:first-child {
 			margin-bottom:0;
 		}
 	</style>
@@ -170,25 +197,26 @@
 		
 		<div class="panel-body">
 			<div class="form-group" id="adj-name">
-				<div class="btn-group btn-group-justified" data-toggle="buttons">
+				<div class="btn-group-vertical" data-toggle="buttons">
 					{% for chair in round['chair'] %}
-						<label for="adj-name-{{chair}}" class="btn btn-default {% if num_of_adjs == 1 %}active{% endif %}">
+						<label for="adj-name-{{chair}}" class="btn btn-default {% if num_of_adjs == 1 %}active{% endif %}" onclick="show_input();">
 							<input type="radio" name="adj-name" id="adj-name-{{chair}}" value="{{chair}}" {% if num_of_adjs == 1 %}checked{% endif %}></input>
 							<span class="badge pull-left">Chair</span> {{chair}}
 						</label>
 					{% endfor %}
 					{% for panel in round['panel'] %}
-						<label for="adj-name-{{panel}}" class="btn btn-default {% if num_of_adjs == 1 %}active{% endif %}">
+						<label for="adj-name-{{panel}}" class="btn btn-default {% if num_of_adjs == 1 %}active{% endif %}" onclick="show_input();">
 							<input type="radio" name="adj-name" id="adj-name-{{panel}}" value="{{panel}}" {% if num_of_adjs == 1 %}checked{% endif %}></input>
 							<span class="badge pull-left">Panel</span> {{panel}}
 						</label>
 					{% endfor %}
 				</div>
 			</div>
-				<div class="scrollable-container">
-				<div class="form-group" id="adj-score">
+			<div class="spacer"></div>
+			<div class="scrollable-container">
+			<div class="form-group" id="adj-score">
 				<div class="scrollable">
-				<div class="btn-group btn-group-justified" id="adj-score" data-toggle="buttons">
+				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					{% for i in range(feedback_range['min'], feedback_range['max']+1, feedback_range['step']) %}
 						<label for="adj-score-{{i}}" class="btn btn-default">
 							<input type="radio" name="adj-score" id="adj-score-{{i}}" value="{{i}}"></input>
@@ -197,8 +225,12 @@
 					{% endfor %}
 				</div>
 				</div>
-				</div>
-				</div>
+			</div>
+			</div>
+			<div class="spacer"></div>
+			<div class="form-group" id="adj-comment">
+				<textarea id="adj-comment-content" class="form-control" rows="3" placeholder="Write your comment here..."></textarea>
+			</div>
 		</div>
 	</div>
 	

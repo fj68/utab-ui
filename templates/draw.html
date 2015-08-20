@@ -1,0 +1,80 @@
+{% extends "base.template" %}
+
+{%block title %}Draw for Round {{round_n}}{% endblock %}
+
+{% block head %}
+	{{ super() }}
+	
+	<style>
+		.table-hover tbody tr:hover {
+			cursor:pointer;
+		}
+	</style>
+	
+	<link rel="stylesheet" href="/static/css/tablesorter/style.css" type="text/css">
+	<script src="/static/js/jquery.tablesorter.min.js"></script>
+	<script>
+		$(function(){
+			$(".table-sortable").each(function(idx, elem){
+				$(elem).addClass('tablesorter');
+				$(elem).tablesorter();
+			});
+			
+			$("tr[data-href]").click(function(){
+				location.href = $(this).attr('data-href');
+			});
+		});
+	</script>
+{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>Draw <small>for Round {{round_n}}</small></h1>
+	</div>
+
+	{% if current_user.is_authenticated() %}
+		<div class="form-inline">
+			<div class="input-group col-md-2">
+				<span class="input-group-btn">
+					<button type="button" class="btn btn-default" onclick="$('#draw-table').css('fontSize', $('#font-size').val()+'pt')"><span class="glyphicon glyphicon-text-size"></span></button>
+				</span>
+				<input type="number" class="form-control" value="11" id="font-size"></input>
+				<span class="input-group-addon">pt</span>
+			</div>
+			<a href="/draw/edit" class="btn btn-success pull-right">Edit</a>
+		</div>
+		<br>
+	{% endif %}
+
+	<table class="table table-striped table-bordered table-sortable" id="draw-table">
+		<thead>
+			<tr><th>Venue</th><th>Gov.</th><th>Opp.</th><th>Chair</th><th>Panel</th><th>Trainee</th></tr>
+		</thead>
+		<tbody>
+			{% for item in data %}
+				<tr>
+					<td><div class="venue">{{item['venue']}}</div></td>
+					<td><div class="gov team">{{item['gov']}}</div></td>
+					<td><div class="opp team">{{item['opp']}}</div></td>
+					<td>
+						{% for chair in item['chair'] %}
+							<div class="adj">{{chair}}</div>
+						{% endfor %}
+					</td>
+					<td>
+						{% for panel in item['panel'] %}
+							<div class="adj">{{panel}}</div>
+						{% endfor %}
+					</td>
+					<td>
+						{% for trainee in item['trainee'] %}
+							<div class="adj">{{trainee}}</div>
+						{% endfor %}
+					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}
+
+
