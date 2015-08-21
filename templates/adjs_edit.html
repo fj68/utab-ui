@@ -79,15 +79,6 @@
 				_['opp']['total'] += _['opp'][role]['score'];
 			}
 			
-			var adjs = [{% for adj in other_adjs %}{{'{'}}role:"{{adj['role']}}", name:"{{ adj['name'] }}"{{'}'}}, {% endfor %}null];
-			adjs.pop();
-			_['adjs'] = [];
-			for(i in adjs){
-				var adj = adjs[i];
-				var score = validate(is_number, Number($('[name=' + nows(adj.name) + '-score]:checked').val()), '#' + nows(adj.name) + '-score', 'Select <a href="#' + nows(adj.name) + '-score" class="alert-link">' + adj.name + '\'s Score</a>!')
-				_['adjs'].push({'role':adj.role, 'name':adj.name, 'score':score});
-			}
-			
 			if(_['gov']['pm']['name'] == _['gov']['mg']['name']){
 				$('#pm-name').addClass('has-error');
 				$('#mg-name').addClass('has-error');
@@ -190,18 +181,16 @@
 		
 		{% macro abs(n) -%}{{n|abs}}{%- endmacro -%}
 		{%- set score_range_diff = abs(score_range['max'] - score_range['min'])|int -%}
-		{%- set feedback_range_diff = abs(feedback_range['max'] - feedback_range['min'])|int -%}
-		{%- if score_range_diff >= feedback_range_diff -%}
-			{%- set _range_diff = score_range_diff -%}
-		{%- else -%}
-			{%- set _range_diff = feedback_range_diff -%}
-		{%- endif -%}
 		.scrollable {
-			min-width:{{ _range_diff * 70 }}px;
+			min-width:{{ score_range_diff * 70 }}px;
 		}
 		
 		table.scrollable {
 			margin-bottom:0;
+		}
+
+		.btn-group-vertical {
+			width:100%!important;
 		}
 		
 		.form-group:last-child {
@@ -278,7 +267,7 @@
 		
 		<div class="panel-body">
 			<div class="form-group" id="{{id}}-name">
-				<div class="btn-group btn-group-justified" data-toggle="buttons">
+				<div class="btn-group-vertical" data-toggle="buttons">
 					{% for speaker in speakers %}
 						<label for="{{id}}-name-{{nows(speaker)}}" class="btn btn-default" id="{{id}}-name-{{nows(speaker)}}-label" {% if id == 'pm' or id == 'lo' %}onclick="select_speaker_{{id}}('{{nows(speaker)}}');"{% endif %}>
 							<input type="radio" name="{{id}}-name" id="{{id}}-name-{{nows(speaker)}}" value="{{speaker}}"></input>
@@ -305,60 +294,13 @@
 	</div>
 	{%- endmacro %}
 	
-	{% macro feedback_panel(role, name, color='default') -%}
-	{% set id = name %}
-	<div class="panel panel-{{color}}">
-		<div class="panel-heading">
-			<div class="panel-title">{{name}} <span class="badge pull-right">{{role|title}}</span></div>
-		</div>
-		
-		<div class="panel-body">
-			<div class="scrollable-container">
-			<div class="form-group" id="{{id}}-score">
-				<div class="scrollable">
-				<div class="btn-group btn-group-justified" id="{{nows(id)}}-score" data-toggle="buttons">
-					{% for i in range(feedback_range['min'], feedback_range['max']+1, feedback_range['step']) %}
-						<label for="{{id}}-score-{{i}}" class="btn btn-default">
-							<input type="radio" name="{{nows(id)}}-score" id="{{id}}-score-{{i}}" value="{{i}}"></input>
-							{{pre_float_to_str(i)}}
-						</label>
-					{% endfor %}
-				</div>
-				</div>
-			</div>
-			</div>
-			<!--div class="form-group" id="{{id}}-comment">
-				<textarea id="{{id}}-comment-content" class="form-control" rows="3" placeholder="Write your comment here..."></textarea>
-			</div-->
-		</div>
-	</div>
-	{%- endmacro %}
-	
 	{% set gov_color, opp_color = 'success', 'warning' %}
 	{{ ballot_panel('pm', 'Prime Minister', round['gov'], gov['speakers'], score_range, gov_color) }}
 	{{ ballot_panel('lo', 'Leader of Opposition', round['opp'], opp['speakers'], score_range, opp_color) }}
 	{{ ballot_panel('mg', 'Member of Government', round['gov'], gov['speakers'], score_range, gov_color) }}
 	{{ ballot_panel('mo', 'Member of Opposition', round['opp'], opp['speakers'], score_range, opp_color) }}
-	{{ ballot_panel('gr', 'Government Reply', round['gov'], gov['speakers'], reply_range, gov_color) }}
 	{{ ballot_panel('or', 'Oppsition Reply', round['opp'], opp['speakers'], reply_range, opp_color) }}
-	
-	{%- set fb_to -%}
-		{%- if data['role'] == 'chair' -%}
-			Chair <span class="glyphicon glyphicon-arrow-right"></span> {% if round['panel']|length != 0 %}Panel{% endif %}{% if round['trainee']|length != 0 %}{% if round['panel']|length != 0 %} & {% endif %}Trainee{% endif -%}
-		{%- elif data['role'] == 'panel' -%}
-			Panel <span class="glyphicon glyphicon-arrow-right"></span> {% if round['chair']|length != 0 %}Chair{% endif %}
-		{%- endif -%}
-	{%- endset -%}
-	
-	{% if round['panel']|length != 0 or round['trainee']|length != 0 %}
-	<h2>Adjudicators Feedback <small>{{ fb_to|safe }}</small></h2>
-	
-	{% set adj_color = 'info' %}
-	{% for adj in other_adjs %}
-		{{ feedback_panel(adj['role'], adj['name'], adj_color) }}
-	{% endfor %}
-	
-	{% endif %}
+	{{ ballot_panel('gr', 'Government Reply', round['gov'], gov['speakers'], reply_range, gov_color) }}
 	
 	<hr>
 	

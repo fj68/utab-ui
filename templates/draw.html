@@ -40,6 +40,10 @@
 			min-width:700px;
 		}
 		
+		.spacer {
+			height:15px;
+		}
+		
 		table.scrollable {
 			margin-bottom:0;
 		}
@@ -53,14 +57,12 @@
 
 	{% if current_user.is_authenticated() %}
 		<div class="form-inline">
-			<div class="input-group col-md-2">
-				<span class="input-group-btn">
-					<button type="button" class="btn btn-default" onclick="$('#draw-table').css('fontSize', $('#font-size').val()+'pt')"><span class="glyphicon glyphicon-text-size"></span></button>
-				</span>
-				<input type="number" class="form-control" value="11" id="font-size"></input>
+			<div class="input-group col-xs-2">
+				<span class="input-group-addon"><span class="glyphicon glyphicon-text-size"></span></span>
+				<input type="number" class="form-control" value="11" id="font-size" onchange="$('#draw-table').css('fontSize', $(this).val()+'pt')"></input>
 				<span class="input-group-addon">pt</span>
 			</div>
-			<a href="/draw/edit" class="btn btn-success pull-right">Edit</a>
+				<a href="/draw/edit" class="btn btn-success pull-right">Edit</a>
 		</div>
 		<br>
 	{% endif %}
@@ -97,6 +99,8 @@
 		</tbody>
 	</table>
 	</div>
+	
+	<div class="spacer"></div>
 {% endblock %}
 
 

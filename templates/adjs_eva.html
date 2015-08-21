@@ -1,10 +1,10 @@
 {% extends "room_list.template" %}
 
-{% block title %}Ballots for Round {{round_n}}{% endblock %}
+{% block title %}Judge Evaluations for Round {{round_n}}{% endblock %}
 
 {% block content %}
 	<div class="page-header">
-		<h1>Ballots <small> for Round {{round_n}}</small></h1>
+		<h1>Judge Evaluations <small> for Round {{round_n}}</small></h1>
 	</div>
 	
 	<!--
@@ -51,8 +51,8 @@
 	
 	<div class="list-group">
 		{% for item in data %}
-			<a  class="list-group-item list-group-item-{% if item['status'] == 'saved' %}success{# {% elif item['status'] == 'editing' %}warning#}{% else %}danger{% endif %}" href="/adjs/{{item['name']}}">
-				<span class="glyphicon glyphicon-{% if item['status'] == 'saved' %}ok{# {% elif item['status'] == 'editing' %}pencil#}{% else %}bullhorn{% endif %}"></span> {{item['name']}} {% if item['timediff']|int == 0 %}<span class="glyphicon glyphicon-flag" style="font-size:120%; font-style:italic;"></span>{% elif item['timediff']|int > 0 %}(+ {{ timediff2str(item['timediff']) }}){% endif %}
+			<a  class="list-group-item list-group-item-{% if item['status'] == 'saved' %}success{# {% elif item['status'] == 'editing' %}warning#}{% else %}danger{% endif %}" href="/adjs-eva/{{item['name']}}">
+				<span class="glyphicon glyphicon-{% if item['status'] == 'saved' %}ok{#{% elif item['status'] == 'editing' %}pencil#}{% else %}bullhorn{% endif %}"></span> {{item['name']}} {% if item['timediff']|int == 0 %}<span class="glyphicon glyphicon-flag" style="font-size:120%; font-style:italic;"></span>{% elif item['timediff']|int > 0 %}(+ {{ timediff2str(item['timediff']) }}){% endif %}
 			</a>
 		{% endfor %}
 	</div>

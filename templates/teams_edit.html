@@ -15,6 +15,7 @@
 			$('.spacer').hide();
 			$('#adj-score').hide();
 			$('#adj-comment').hide();
+			{% if num_of_adjs == 1 %}show_input();{% endif %}
 		});
 		
 		var is_change_state = false;

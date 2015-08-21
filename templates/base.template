@@ -6,7 +6,27 @@
 	
 	<title>{% block title %}{% endblock %} - {{tournament_name}}</title>
 	
-	<!--<link rel="shortcut icon" href="favicon.ico">-->
+	<link rel="apple-touch-icon" sizes="57x57" href="/static/icons/apple-touch-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="/static/icons/apple-touch-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/static/icons/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/static/icons/apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/static/icons/apple-touch-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/static/icons/apple-touch-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="/static/icons/apple-touch-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/apple-touch-icon-152x152.png">
+	<link rel="apple-touch-icon-precomposed" href="/static/icons/apple-touch-icon-precomposed.png">
+	<link rel="icon" type="image/png" href="/static/icons/favicon-32x32.png" sizes="32x32">
+	<link rel="icon" type="image/png" href="/static/icons/favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/png" href="/static/icons/favicon-16x16.png" sizes="16x16">
+	<link rel="manifest" href="/static/icons/manifest.json">
+	<link rel="shortcut icon" href="/static/icons/favicon.ico">
+	<meta name="apple-mobile-web-app-title" content="6th Icho Cup">
+	<meta name="application-name" content="6th Icho Cup">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="msapplication-TileImage" content="/static/icons/mstile-144x144.png">
+	<meta name="msapplication-config" content="/static/icons/browserconfig.xml">
+	<meta name="theme-color" content="#da532c">
+	
 	<link rel="stylesheet" href="/static/css/bootstrap.min.css">
 	<script src="/static/js/jquery.min.js"></script>
 	<script src="/static/js/bootstrap.min.js"></script>
@@ -41,7 +61,10 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="/home/">{{tournament_name}}</a>
+					<a class="navbar-brand" href="/home/" style="margin-right:0;padding-right:0;">
+						<img src="/static/icons/favicon-32x32.png{# % if admin %}favicon-32x32.png{% else %}brand-32x32.png{% endif % #}" alt="logo" style="position:relative;top:-7px;left:-7px;"/>
+					</a>
+					<a class="navbar-brand" href="/home/" style="margin-left:0;padding-left:0;">{{tournament_name}}</a>
 				</div>
 
 				<!-- Collect the nav links, forms, and other content for toggling -->
@@ -51,7 +74,12 @@
 						<li><a href="/admin/">Admin</a></li>
 						{% endif %}
 						<li><a href="/draw/">Draw</a></li>
-						<li><a href="/adjs/">Adjudicators</a></li>
+						<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Adjudicators <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/adjs/">Ballots</a></li>
+							<li><a href="/adjs-eva/">Judge Evaluations</a></li>
+						</ul>
 						<li><a href="/teams/">Debaters</a></li>
 					</ul>
 					{% if admin %}

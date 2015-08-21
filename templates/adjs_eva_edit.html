@@ -1,0 +1,241 @@
+{% extends "base.template" %}
+
+{% block title %}[{{data['name']}}] Judge Evaluation for Round {{round_n}}{% endblock %}
+
+{% set round = data['round'] %}
+
+{% macro nows(s) %}{{s|replace(' ', '-')}}{% endmacro %}
+
+{% block head %}
+	{{ super() }}
+	
+	<script>
+		$(function(){
+			$('#msgbox').hide();
+			window.onunload = canceler;
+			window.onbeforeunload = canceler;
+		});
+		
+		var done_canceler = false;
+		function canceler(){
+			$.ajax({
+				url:'/adjs-eva/{{data["name"]}}/cancel/{{round_n}}',
+				type:'GET',
+				async:(userAgent.indexOf('msie') != -1)
+			}).done(function(data){
+				alert()
+			});
+			return 'wait';
+		}
+		
+		function save(){
+			try {
+				var data = get_data();
+			} catch(e) {
+				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + e);
+				$('#msgbox').show();
+				
+				throw e;
+				
+				return;
+			}
+			
+			$.ajax({
+				url: '/adjs-eva/{{data["name"]}}/',
+				type: 'POST',
+				data: JSON.stringify(data),
+				contentType: 'application/json'
+			}).done(function(data){
+				location.href = '/adjs-eva/';
+			}).fail(function(data){
+				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
+				$('#msgbox').show();
+			});
+		}
+		
+		function nows(s){
+			return s.replace(/ /g, '-');
+		}
+		
+		function get_data(){
+			var _ = {};
+			var adjs = [{% for adj in other_adjs %}{{'{'}}role:"{{adj['role']}}", name:"{{ adj['name'] }}"{{'}'}}, {% endfor %}null];
+			adjs.pop();
+			_['adjs'] = [];
+			for(i in adjs){
+				var adj = adjs[i];
+				var score = validate(is_number, Number($('[name=' + nows(adj.name) + '-score]:checked').val()), '#' + nows(adj.name) + '-score', 'Select <a href="#' + nows(adj.name) + '-score" class="alert-link">' + adj.name + '\'s Score</a>!')
+				_['adjs'].push({'role':adj.role, 'name':adj.name, 'score':score});
+			}
+			
+			return _;
+		}
+		
+		function validate(test, value, id, msg){
+			if(test(value)){
+				return value;
+			}else{
+				$(id).addClass('has-error');
+				throw new Error(msg);
+				return null;
+			}
+		}
+		
+		function not_null(value){
+			return (value !== undefined && value !== null && value !== '');
+		}
+		
+		function is_number(value){
+			return (not_null(value) && !isNaN(value));
+		}
+		
+	</script>
+	
+	<style>
+		.panel-title {
+			font-weight:bold;
+		}
+		.emphasized {
+			font-weight:bold;
+			color:rgb(49, 112, 143);
+		}
+		/*
+		.has-error .btn {
+			color: #a94442 !important;
+			border-color: #a94442 !important;
+			-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		}
+		*/
+		.has-error .btn {
+			border-color: #843534 !important;
+			-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+				      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+		}
+		
+		.scrollable-container {
+			overflow-x:auto;
+			overflow-y:none;
+			margin-bottom:15px;
+		}
+		
+		{% macro abs(n) -%}{{n|abs}}{%- endmacro -%}
+		{%- set feedback_range_diff = abs(feedback_range['max'] - feedback_range['min'])|int -%}
+		.scrollable {
+			min-width:{{ feedback_range_diff * 70 }}px;
+		}
+		
+		table.scrollable {
+			margin-bottom:0;
+		}
+
+		.btn-group-vertical {
+			width:100%!important;
+		}
+		
+		.form-group:last-child {
+			margin-bottom:0;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>{{data['name']}} <small>{{data['role']|title}}</small></h1>
+	</div>
+	
+	<h2>Match-Up <small>for Round {{round_n}}</small></h2>
+	
+	<div class="scrollable-container">
+	<table class="scrollable table table-bordered table-condensed">
+		<thead>
+			<tr><th>Venue</th><th>Gov.</th><th>Opp.</th><th>Chair</th><th>Panel</th><th>Trainee</th></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><div class="venue">{{round['venue']}}</div></td>
+				<td><div class="gov team">{{round['gov']}}</div></td>
+				<td><div class="opp team">{{round['opp']}}</div></td>
+				<td>
+					{% for chair in round['chair'] %}
+						<div class="adj {% if chair == data['name'] %}emphasized{% endif %}">{{chair}}</div>
+					{% endfor %}
+				</td>
+				<td>
+					{% for panel in round['panel'] %}
+						<div class="adj {% if panel == data['name'] %}emphasized{% endif %}">{{panel}}</div>
+					{% endfor %}
+				</td>
+				<td>
+					{% for trainee in round['trainee'] %}
+						<div class="adj">{{trainee}}</div>
+					{% endfor %}
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+	
+	{% macro feedback_panel(role, name, color='default') -%}
+	{% set id = name %}
+	<div class="panel panel-{{color}}">
+		<div class="panel-heading">
+			<div class="panel-title">{{name}} <span class="badge pull-right">{{role|title}}</span></div>
+		</div>
+		
+		<div class="panel-body">
+			<div class="scrollable-container">
+			<div class="form-group" id="{{id}}-score">
+				<div class="scrollable">
+				<div class="btn-group btn-group-justified" id="{{nows(id)}}-score" data-toggle="buttons">
+					{% for i in range(feedback_range['min'], feedback_range['max']+1, feedback_range['step']) %}
+						<label for="{{id}}-score-{{i}}" class="btn btn-default">
+							<input type="radio" name="{{nows(id)}}-score" id="{{id}}-score-{{i}}" value="{{i}}"></input>
+							{{pre_float_to_str(i)}}
+						</label>
+					{% endfor %}
+				</div>
+				</div>
+			</div>
+			</div>
+			<!--div class="form-group" id="{{id}}-comment">
+				<textarea id="{{id}}-comment-content" class="form-control" rows="3" placeholder="Write your comment here..."></textarea>
+			</div-->
+		</div>
+	</div>
+	{%- endmacro %}
+	
+	{%- set fb_to -%}
+		{%- if data['role'] == 'chair' -%}
+			Chair <span class="glyphicon glyphicon-arrow-right"></span> {% if round['panel']|length != 0 %}Panel{% endif %}{% if round['trainee']|length != 0 %}{% if round['panel']|length != 0 %} & {% endif %}Trainee{% endif -%}
+		{%- elif data['role'] == 'panel' -%}
+			Panel <span class="glyphicon glyphicon-arrow-right"></span> {% if round['chair']|length != 0 %}Chair{% endif %}
+		{%- endif -%}
+	{%- endset -%}
+	
+	{% if round['panel']|length != 0 or round['trainee']|length != 0 %}
+	<h2>Judge Evaluation <small>{{ fb_to|safe }}</small></h2>
+	
+	{% set adj_color = 'info' %}
+	{% for adj in other_adjs %}
+		{{ feedback_panel(adj['role'], adj['name'], adj_color) }}
+	{% endfor %}
+	
+	{% endif %}
+	
+	<hr>
+	
+	<div id="msgbox" class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">
+			<span class="glyphicon glyphicon-remove" aris-hidden="true"></span>
+		</button>
+		<span id="msgbox-content"></span>
+	</div>
+	
+	<div class="row">
+		<a href="/adjs-eva/{{data['name']}}/cancel/{{round_n}}" class="btn btn-default col-xs-offset-2 col-xs-3">Cancel</a>
+		<a href="javascript:save();" class="btn btn-primary col-xs-offset-2 col-xs-3">Save</a>
+	</div>
+	<br><br><br>
+{% endblock %}
+
