@@ -595,6 +595,18 @@ def data_ballots_csv_callback(n, m):
 		side = 1 if side == 'gov' else 0
 		num_of_adjs = len(round_info['chair']) + len(round_info['panel'])
 		data.append([team, team_name, side, opponent, side])
+		round_results = []
+		for j in range(1, n+1):
+			results = {}
+			for it in result_db('teams', j).find({'name':team_name}):
+				for i in range(3):
+					if not it[role[i]]['name'] in results:
+						results[it[role[i]]['name']] = [0 for k in range(3)]
+					# add scores given by adjs
+					results[it[role[i]]['name']][i] += it[role[i]]['score']
+					num_of_win += 1 if it['win'] else 0
+					num_of_vote += 1
+			round_results.append(results)
 	
 	return make_csv_response(data, 't.csv')
 	"""
@@ -609,7 +621,7 @@ def data_ballots_csv_callback(n, m):
 		opponent = round_info['gov' if side == 'opp' else 'opp']
 		side = 1 if side == 'gov' else 0
 		num_of_adjs = len(round_info['chair']) + len(round_info['panel'])
-	
+		
 		round_results = []
 		for j in range(1, n+1):
 			results = {}
@@ -622,7 +634,7 @@ def data_ballots_csv_callback(n, m):
 					num_of_win += 1 if it['win'] else 0
 					num_of_vote += 1
 			round_results.append(results)
-	
+		
 		for speaker in team['speakers']:
 			name = speaker
 		
