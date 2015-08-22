@@ -624,15 +624,15 @@ def data_ballots_csv_callback(n, m):
 			
 			for it in result_db('teams', j).find({'name':team_name}):
 				for i in range(3):
-					pass
+					round_results.append(it)
 					#if not it[role[i]]['name'] in results:
-						results[it[role[i]]['name']] = [0 for k in range(3)]
+					#	results[it[role[i]]['name']] = [0 for k in range(3)]
 					# add scores given by adjs
 					#results[it[role[i]]['name']][i] += it[role[i]]['score']
 					#num_of_win += 1 if it['win'] else 0
 					#num_of_vote += 1
 			
-			round_results.append(results)
+			#round_results.append(results)
 		for speaker in team['speakers']:
 			name = speaker
 			round_scores = [[] for k in range(1, n+1)]
