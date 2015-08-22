@@ -381,8 +381,8 @@ def adjs_eva_edit_post_callback(name):
 				now = time()
 				timediff = int(now - timer)
 				timediff_of('adjs_eva', name, round_n, timediff)
-	for adj in data['adjs']:
-		result_db('adjs', round_n).update({'from':name, 'name':adj['name']}, {'from':name, 'name':adj['name'], 'role':adj['role'], 'score':adj['score']}, True)
+		for adj in data['adjs']:
+			result_db('adjs', round_n).update({'from':name, 'name':adj['name']}, {'from':name, 'name':adj['name'], 'role':adj['role'], 'score':adj['score']}, True)
 	return redirect('/adjs-eva/')
 
 @app.route('/teams/')
