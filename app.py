@@ -13,7 +13,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 CODENAME="tab"
 
-import os, csv, cStringIO, collections
+import os, csv, cStringIO, collections, json
 from time import time
 from urlparse import urlparse
 
@@ -584,11 +584,11 @@ def data_ballots_csv_callback(n, m):
 	data = []
 	
 	for item in result_db('teams', n).find():
-		data.append(str(item))
+		data.append(item)
 	response = make_response()
-	response.data = str(data)
+	response.data = json.dumps(data)
 	response.headers['Content-Type'] = 'application/octet-stream'
-	response.headers['Content-Disposition'] = u'attachment; filename={0}'.format('test.json')
+	response.headers['Content-Disposition'] = u'attachment; filename={0}'.format('test2.json')
 	return response
 	"""
 	for item in result_db('teams', n).find():
