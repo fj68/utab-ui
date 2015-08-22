@@ -583,8 +583,8 @@ def data_ballots_csv_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
 	
-	#for item in result_db('teams', n).find():
-		#data.append(item)
+	for item in result_db('teams', n).find():
+		data.append(item)
 		"""		team = team_info(item['name'])
 		team_name = item['name']
 		num_of_win = 0
@@ -622,7 +622,7 @@ def data_ballots_csv_callback(n, m):
 			print 'win of ', team_name, num_of_win, ' / ', num_of_vote, win
 			data.append([team_name, name] + flatten(round_scores) + [win, opponent, side])
 		"""
-	#seen = set()
+	seen = set()
 	#data = [ x for x in data if x[1] not in seen and not seen.add(x[1])]
 	
 	return make_csv_response(data, 'Results{0}.csv'.format(n-1))#, header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
