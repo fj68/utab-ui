@@ -594,6 +594,21 @@ def data_ballots_csv_callback(n, m):
 		opponent = round_info['gov' if side == 'opp' else 'opp']
 		side = 1 if side == 'gov' else 0
 		num_of_adjs = len(round_info['chair']) + len(round_info['panel'])
+		data.append([team, team_name, side, opponent, side])
+	
+	return make_csv_response(data, 't.csv')
+	"""
+	for item in result_db('teams', n).find():
+		team = team_info(item['name'])
+		team_name = item['name']
+		num_of_win = 0
+		num_of_vote = 0
+		side = item['side']
+		role = ['pm', 'mg', 'gr'] if side == 'gov' else ['lo', 'mo', 'or']
+		round_info = first(round_db('teams', n).find({'name':team_name}))['round']
+		opponent = round_info['gov' if side == 'opp' else 'opp']
+		side = 1 if side == 'gov' else 0
+		num_of_adjs = len(round_info['chair']) + len(round_info['panel'])
 	
 		round_results = []
 		for j in range(1, n+1):
@@ -624,7 +639,7 @@ def data_ballots_csv_callback(n, m):
 		#data = [ x for x in data if x[1] not in seen and not seen.add(x[1])]
 	
 	return make_csv_response(data, 'Results{0}.csv'.format(n-1))#, header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
-
+	"""
 @app.route('/data/round<int:n>/Results_of_adj<int:m>.csv')
 @flask_login.login_required
 def data_feedbacks_csv_callback(n, m):
