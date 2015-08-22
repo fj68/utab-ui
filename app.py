@@ -583,48 +583,48 @@ def data_ballots_csv_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
 	
-	#for item in result_db('teams', n).find():
-	#	data.append(item)
-	"""
-		team = team_info(item['name'])
-		team_name = item['name']
-		num_of_win = 0
-		num_of_vote = 0
-		side = item['side']
-		role = ['pm', 'mg', 'gr'] if side == 'gov' else ['lo', 'mo', 'or']
-		round_info = first(round_db('teams', n).find({'name':team_name}))['round']
-		opponent = round_info['gov' if side == 'opp' else 'opp']
-		side = 1 if side == 'gov' else 0
-		num_of_adjs = len(round_info['chair']) + len(round_info['panel'])
+	for item in result_db('teams', n).find():
+		data.append(item)
+		"""
+			team = team_info(item['name'])
+			team_name = item['name']
+			num_of_win = 0
+			num_of_vote = 0
+			side = item['side']
+			role = ['pm', 'mg', 'gr'] if side == 'gov' else ['lo', 'mo', 'or']
+			round_info = first(round_db('teams', n).find({'name':team_name}))['round']
+			opponent = round_info['gov' if side == 'opp' else 'opp']
+			side = 1 if side == 'gov' else 0
+			num_of_adjs = len(round_info['chair']) + len(round_info['panel'])
 		
-		round_results = []
-		for j in range(1, n+1):
-			results = {}
-			for it in result_db('teams', j).find({'name':team_name}):
-				for i in range(3):
-					if not it[role[i]]['name'] in results:
-						results[it[role[i]]['name']] = [0 for k in range(3)]
-					# add scores given by adjs
-					results[it[role[i]]['name']][i] += it[role[i]]['score']
-					num_of_win += 1 if it['win'] else 0
-					num_of_vote += 1
-			round_results.append(results)
+			round_results = []
+			for j in range(1, n+1):
+				results = {}
+				for it in result_db('teams', j).find({'name':team_name}):
+					for i in range(3):
+						if not it[role[i]]['name'] in results:
+							results[it[role[i]]['name']] = [0 for k in range(3)]
+						# add scores given by adjs
+						results[it[role[i]]['name']][i] += it[role[i]]['score']
+						num_of_win += 1 if it['win'] else 0
+						num_of_vote += 1
+				round_results.append(results)
 		
-		for speaker in team['speakers']:
-			name = speaker
+			for speaker in team['speakers']:
+				name = speaker
 			
-			round_scores = [[] for k in range(1, n+1)]
-			for i in range(0, n):
-				round_n_info = round_results[i]
-				for r in round_n_info:
-					if name == r:
-						round_scores[i] = [printer(printer(float(round_n_info[name][j])) / num_of_adjs) for j in range(3)]
-			win = 1 if float(num_of_win) / float(num_of_vote) > 0.5 else 0
-			print 'win of ', team_name, num_of_win, ' / ', num_of_vote, win
-			data.append([team_name, name] + flatten(round_scores) + [win, opponent, side])
-	"""
-	#seen = set()
-	#data = [ x for x in data if x[1] not in seen and not seen.add(x[1])]
+				round_scores = [[] for k in range(1, n+1)]
+				for i in range(0, n):
+					round_n_info = round_results[i]
+					for r in round_n_info:
+						if name == r:
+							round_scores[i] = [printer(printer(float(round_n_info[name][j])) / num_of_adjs) for j in range(3)]
+				win = 1 if float(num_of_win) / float(num_of_vote) > 0.5 else 0
+				print 'win of ', team_name, num_of_win, ' / ', num_of_vote, win
+				data.append([team_name, name] + flatten(round_scores) + [win, opponent, side])
+		"""
+		#seen = set()
+		#data = [ x for x in data if x[1] not in seen and not seen.add(x[1])]
 	
 	return make_csv_response(data, 'Results{0}.csv'.format(n-1))#, header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
 
