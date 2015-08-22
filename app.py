@@ -273,8 +273,8 @@ def adjs_edit_cancel_callback(name, round_n):
 
 @app.route('/adjs/<name>/', methods=['GET'])
 def adjs_edit_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	#if config_maintainance() and not flask_login.current_user.is_authenticated():
+	#	return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = first(round_db('adjs', round_n).find({'name':name}))
@@ -289,8 +289,8 @@ def adjs_edit_callback(name):
 
 @app.route('/adjs/<name>/', methods=['POST'])
 def adjs_edit_post_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	#if config_maintainance() and not flask_login.current_user.is_authenticated():
+	#	return render_template('maintainance.html')
 	data = request.get_json()
 	timer = config_adj_timer()
 	round_n = config_round_n()
