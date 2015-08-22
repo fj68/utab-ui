@@ -1,6 +1,6 @@
 {% extends "base.template" %}
 
-{% block title %}[{{data['name']}}] Ballot for Round {{round_n}}{% endblock %}
+{% block title %}[{{data['name']}}] Score Sheet for Round {{round_n}}{% endblock %}
 
 {% set round = data['round'] %}
 
@@ -236,7 +236,7 @@
 	</table>
 	</div>
 	
-	<h2>Ballot <small>{{data['role']|title}} <span class="glyphicon glyphicon-arrow-right"><!--chevron--></span> Teams</small></h2>
+	<h2>Score Sheet <small>{{data['role']|title}} <span class="glyphicon glyphicon-arrow-right"><!--chevron--></span> Teams</small></h2>
 	
 	<div class="panel panel-primary">
 		<div class="panel-heading">
