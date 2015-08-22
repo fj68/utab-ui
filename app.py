@@ -644,7 +644,7 @@ def data_teams_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
 	
-	for item in result_db.teams.find():
+	for item in db.teams.find():
 		it = dict(item)
 		it.pop('_id')
 		data.append(it)
