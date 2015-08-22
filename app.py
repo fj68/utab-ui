@@ -371,17 +371,17 @@ def adjs_eva_edit_post_callback(name):
 	data = request.get_json()
 	timer = config_adj_eva_timer()
 	round_n = config_round_n()
+	print data
 	if data:
-		print data
 		status_of('adjs_eva', name, round_n, 'saved')
 		if timer is None:
-			config_adj_eva_timer(time())
+			#config_adj_eva_timer(time())
 			timediff_of('adjs_eva', name, round_n, 0)
 		else:
-			if timediff_of('adjs_eva', name, round_n) == -1:
-				now = time()
-				timediff = int(now - timer)
-				timediff_of('adjs_eva', name, round_n, timediff)
+			#if timediff_of('adjs_eva', name, round_n) == -1:
+			#	now = time()
+			#	timediff = int(now - timer)
+			timediff_of('adjs_eva', name, round_n, 0)
 		for adj in data['adjs']:
 			result_db('adjs', round_n).update({'from':name, 'name':adj['name']}, {'from':name, 'name':adj['name'], 'role':adj['role'], 'score':adj['score']}, True)
 	return redirect('/adjs-eva/')
