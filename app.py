@@ -578,7 +578,7 @@ def make_csv_response(data, filename=None, header=None, **kwargs):
 	return response
 
 @app.route('/data/round<int:n>/Results<int:m>.csv')
-@flask_login.login_required
+#@flask_login.login_required
 def data_ballots_csv_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
