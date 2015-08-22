@@ -583,8 +583,13 @@ def data_ballots_csv_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
 	
+	
+	
 	for item in result_db('teams', n).find():
-		data.append(item)
+		it = dict(item)
+		it.pop('_id')
+		data.append(it)
+	
 	response = make_response()
 	response.data = json.dumps(data)
 	response.headers['Content-Type'] = 'application/octet-stream'
@@ -631,7 +636,24 @@ def data_ballots_csv_callback(n, m):
 		#seen = set()
 		#data = [ x for x in data if x[1] not in seen and not seen.add(x[1])]
 	"""
-	return make_csv_response(data, 'Results{0}.csv'.format(n-1))#, header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
+	#return make_csv_response(data, 'Results{0}.csv'.format(n-1))#, header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
+
+@app.route('/data/round<int:n>/Results<int:m>.csv')
+#@flask_login.login_required
+def data_ballots_csv_callback(n, m):
+	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
+	data = []
+	
+	for item in result_db.teams.find():
+		it = dict(item)
+		it.pop('_id')
+		data.append(it)
+	
+	response = make_response()
+	response.data = json.dumps(data)
+	response.headers['Content-Type'] = 'application/octet-stream'
+	response.headers['Content-Disposition'] = u'attachment; filename={0}'.format('team.json')
+	return response
 
 @app.route('/data/round<int:n>/Results_of_adj<int:m>.csv')
 @flask_login.login_required
