@@ -586,7 +586,7 @@ def data_ballots_csv_callback(n, m):
 	for item in result_db('teams', n).find():
 		print item
 		#data.append(first(round_db('teams', n).find({'name':itm['name']}))['round'])
-	
+	data = []
 	"""
 	for item in result_db('teams', n).find():
 		team = team_info(item['name'])
