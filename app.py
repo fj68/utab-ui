@@ -638,9 +638,9 @@ def data_ballots_csv_callback(n, m):
 	"""
 	#return make_csv_response(data, 'Results{0}.csv'.format(n-1))#, header=['team name', 'name'] + flatten([['R{0} 1st'.format(i), 'R{0} 2nd'.format(i), 'R{0} rep'.format(i)] for i in range(1, n+1)]) + ['win?lose?', 'opponent name', 'gov?opp?'])
 
-@app.route('/data/round<int:n>/Results<int:m>.csv')
+@app.route('/data/teams.csv')
 #@flask_login.login_required
-def data_ballots_csv_callback(n, m):
+def data_teams_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
 	
