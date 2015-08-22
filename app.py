@@ -366,13 +366,14 @@ def adjs_eva_edit_callback(name):
 
 @app.route('/adjs-eva/<name>/', methods=['POST'])
 def adjs_eva_edit_post_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+#	if config_maintainance() and not flask_login.current_user.is_authenticated():
+#		return render_template('maintainance.html')
 	data = request.get_json()
-	timer = config_adj_eva_timer()
+#	timer = config_adj_eva_timer()
 	round_n = config_round_n()
 	if data:
-		status_of('adjs_eva', name, round_n, 'saved')
+		print data
+"""		status_of('adjs_eva', name, round_n, 'saved')
 		if timer is None:
 			config_adj_eva_timer(time())
 			timediff_of('adjs_eva', name, round_n, 0)
@@ -381,7 +382,7 @@ def adjs_eva_edit_post_callback(name):
 				now = time()
 				timediff = int(now - timer)
 				timediff_of('adjs_eva', name, round_n, timediff)
-		for adj in data['adjs']:
+"""		for adj in data['adjs']:
 			result_db('adjs', round_n).update({'from':name, 'name':adj['name']}, {'from':name, 'name':adj['name'], 'role':adj['role'], 'score':adj['score']}, True)
 	return redirect('/adjs-eva/')
 
