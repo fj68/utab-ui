@@ -19,7 +19,7 @@
 		var done_canceler = false;
 		function canceler(){
 			$.ajax({
-				url:'/adjs/{{data["name"]}}/cancel/{{round_n}}',
+				url:'/adjs/{{data["name"]|urlescape}}/cancel/{{round_n}}',
 				type:'GET',
 				async:(userAgent.indexOf('msie') != -1)
 			}).done(function(data){

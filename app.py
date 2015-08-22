@@ -371,10 +371,10 @@ def adjs_eva_edit_post_callback(name):
 	data = request.get_json()
 	timer = config_adj_eva_timer()
 	round_n = config_round_n()
-	if data is not None:
+	if data:
 		status_of('adjs_eva', name, round_n, 'saved')
 		if timer is None:
-			config_adj_timer(time())
+			config_adj_eva_timer(time())
 			timediff_of('adjs_eva', name, round_n, 0)
 		else:
 			if timediff_of('adjs_eva', name, round_n) == -1:
