@@ -583,9 +583,8 @@ def data_ballots_csv_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
 	
-	for item in tolist(result_db('teams', n).find()):
-	#for item in result_db('teams', n).find():
-		data.append(item)
+	for item in result_db('teams', n).find():
+		data.append(item['name'])
 		"""
 			team = team_info(item['name'])
 			team_name = item['name']
