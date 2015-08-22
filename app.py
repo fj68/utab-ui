@@ -585,6 +585,14 @@ def data_ballots_csv_callback(n, m):
 	
 	for item in result_db('teams', n).find():
 		data.append(str(item))
+	response = make_response()
+	response.data = str(data)
+	if filename is None:
+		response.headers['Content-Type'] = 'text/csv'
+	else:
+		response.headers['Content-Type'] = 'application/octet-stream'
+		response.headers['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
+	return response
 	"""
 	for item in result_db('teams', n).find():
 		team = team_info(item['name'])
