@@ -383,6 +383,7 @@ def adjs_eva_edit_post_callback(name):
 	timer = config_adj_eva_timer()
 	round_n = config_round_n()
 	print data
+	return redirect('/adjs/')
 	if data is not None:
 		status_of('adjs_eva', name, round_n, 'saved')
 		if timer is None:
