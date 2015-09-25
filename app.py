@@ -296,7 +296,6 @@ def adjs_edit_callback(name):
 	config = db.config.find_one()
 	score_range = config['score_range_const']
 	reply_range = config['score_range_reply']
-	return redirect('/adjs/')
 	return render_template('adjs_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, past_status=past_status, frange=frange, round_n=round_n, data=data, gov=gov, opp=opp, score_range=score_range, reply_range=reply_range, pre_float_to_str=pre_float_to_str)
 
 @app.route('/adjs/<name>/', methods=['POST'])
