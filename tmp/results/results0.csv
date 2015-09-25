@@ -1,0 +1,205 @@
+
+KU B,Haruki Kubota,74,0,37.5,1,NIT A,1
+KU B,Taiki Hasegawa,0,75,0,1,NIT A,1
+NIT A,Mari Sugioka,74,0,37,0,KU B,0
+NIT A,Emiri Yamada,0,74,0,0,KU B,0
+Titech B,Narumi Ogawa,74,0,36.5,1,TUFS A,1
+Titech B,Yuri Kimura,0,76,0,1,TUFS A,1
+TUFS A,Maya Ogura,74,0,36,0,Titech B,0
+TUFS A,Natsuki Doi,0,74,0,0,Titech B,0
+TCUEA,Misaki Nakamura,75,0,36.5,1,TMUB,1
+TCUEA,Ai Watanabe,0,74,0,1,TMUB,1
+TMUB,Ayaka Murata,74,0,36.5,0,TCUEA,0
+TMUB,Yukino Kawahara,0,74,0,0,TCUEA,0
+Hit-U A,Rintaro Komamba,76,0,37.5,0,WADF,1
+Hit-U A,Yasuko Ichikura,0,75,0,0,WADF,1
+WADF,Ryo Watanabe,77,0,39,1,Hit-U A,0
+WADF,Masaru Urano,0,77,0,1,Hit-U A,0
+KDS K,Daiya Saito,75,0,37,0,Hit-U D,1
+KDS K,Yuya Hashinaga,0,75,0,0,Hit-U D,1
+Hit-U D,Yuriko Sugimoto,77,0,38,1,KDS K,0
+Hit-U D,Atsuki Okada,0,76,0,1,KDS K,0
+Kyoto A,Megumi Takahashi,75,0,38,0,TMUA,1
+Kyoto A,Masahiro Morino,0,76,0,0,TMUA,1
+TMUA,Junya Matsui,76,0,38.5,1,Kyoto A,0
+TMUA,Syota Maezono,0,75,0,1,Kyoto A,0
+Sophia A,Yuika Kayamori,77,0,36.5,0,KDS B,1
+Sophia A,Yurie Egawa,0,75,0,0,KDS B,1
+KDS B,Sae Kobayashi,77,0,37,1,Sophia A,0
+KDS B,Masako Ishihara,0,77,0,1,Sophia A,0
+ICUB,Subaru Arakane,79,0,38.5,0,KDS C,1
+ICUB,Sho Yurimoto,0,78,0,0,KDS C,1
+KDS C,Atsushi Sumida,79,0,39,1,ICUB,0
+KDS C,Kotaro Asano,0,79,0,1,ICUB,0
+TGU A,Maki Motegi,77,0,38,1,QUB,1
+TGU A,Chiho Hiruta,0,77,0,1,QUB,1
+QUB,Yuuki Ornishi,76,0,37,0,TGU A,0
+QUB,Hiroki Kanai,0,77,0,0,TGU A,0
+Seikei A,Ayaka Sakai,73,0,36.5,1,Takushoku C,1
+Seikei A,Toyoaki Kato,0,74,0,1,Takushoku C,1
+Takushoku C,Taisuke Ihara,73,0,36,0,Seikei A,0
+Takushoku C,Ryota Iwamoto,0,72,0,0,Seikei A,0
+Takushoku B,Lee Jiwoo,74,0,37.5,0,Sophia D,1
+Takushoku B,Haruki Mitsui,0,74,0,0,Sophia D,1
+Sophia D,Masaki Kuwata,74,0,37.5,1,Takushoku B,0
+Sophia D,Hazuki Itazaki,0,75,0,1,Takushoku B,0
+GUDSB,Yuka Otsuka,75,0,37.5,1,KDS L,1
+GUDSB,Rina Sakaguchi,0,75,0,1,KDS L,1
+KDS L,Shuzou Murano,75,0,37.5,0,GUDSB,0
+KDS L,Hazumi Kubota,0,74,0,0,GUDSB,0
+Sophia C,Hanami Yamagishi,77,0,39,0,Titech A,1
+Sophia C,Chigira Hasumi,0,76,0,0,Titech A,1
+Titech A,Yutaro Totsuka,78,0,39.5,1,Sophia C,0
+Titech A,Luo Xueting,0,78,0,1,Sophia C,0
+GUDSA,Shizuka Haba,76,0,37.5,0,ICUA,1
+GUDSA,Yukino Nishina,0,74,0,0,ICUA,1
+ICUA,Yusuke Hara,76,0,37.5,1,GUDSA,0
+ICUA,Kiriko Terai,0,75,0,1,GUDSA,0
+AIU B,Minako Yamada,73,0,38,1,Nagoya A,1
+AIU B,Yuta Syonaka,0,75,0,1,Nagoya A,1
+Nagoya A,Yukihiro Watanabe,73,0,37,0,AIU B,0
+Nagoya A,Natsuki Nakashima,0,71,0,0,AIU B,0
+KU A,Chisato Shimizu,74,0,37,0,TokyoB,1
+KU A,Yurika Katayama,0,75,0,0,TokyoB,1
+TokyoB,Mina Hamada,79,0,39.5,1,KU A,0
+TokyoB,Yasunori Toshimitsu,0,79,0,1,KU A,0
+Kyoto B,Kojiro Suda,75,0,37.5,0,TokyoG,1
+Kyoto B,Shizuka Ishimura,0,75,0,0,TokyoG,1
+TokyoG,Julia Sakai,77,0,38.5,1,Kyoto B,0
+TokyoG,Julius Cueto,0,78,0,1,Kyoto B,0
+NIT B,Kentaro Koto,74,0,37.5,1,SIT A,1
+NIT B,Liu Shan,0,74,0,1,SIT A,1
+SIT A,Tomomi Ishida,74,0,37,0,NIT B,0
+SIT A,Koki Yamazaki,0,73,0,0,NIT B,0
+TokyoE,Ayaka Watanabe,76,0,37.5,1,TUSB,1
+TokyoE,Riko Ishimaru,0,76,0,1,TUSB,1
+TUSB,Miyu Ueda,74,0,37,0,TokyoE,0
+TUSB,Daiki Kato,0,74,0,0,TokyoE,0
+ICUC,Fumiya Okazaki,72,0,36,1,TokyoC,1
+ICUC,Kana Shimizu,0,78,0,1,TokyoC,1
+TokyoC,Shotaro Gotanda,75,0,36,0,ICUC,0
+TokyoC,Kohei Kuno,0,73,0,0,ICUC,0
+Titech C,Kohei Umedera,74,0,35,0,WADC,1
+Titech C,Masami Sugawara,0,73,0,0,WADC,1
+WADC,Kei Nakanishi,75,0,36.5,1,Titech C,0
+WADC,Yumi Uchida,0,76,0,1,Titech C,0
+Titech C,Kohei Umedera,73,0,37.5,0,WADC,1
+Titech C,Masami Sugawara,0,73,0,0,WADC,1
+WADC,Kei Nakanishi,75,0,37.5,1,Titech C,0
+WADC,Yumi Uchida,0,74,0,1,Titech C,0
+Titech C,Kohei Umedera,73,0,37,0,WADC,1
+Titech C,Masami Sugawara,0,73,0,0,WADC,1
+WADC,Kei Nakanishi,75,0,37.5,1,Titech C,0
+WADC,Yumi Uchida,0,77,0,1,Titech C,0
+Titech B,Narumi Ogawa,72,0,36,0,TUFS A,1
+Titech B,Yuri Kimura,0,76,0,0,TUFS A,1
+TUFS A,Maya Ogura,74,0,37,1,Titech B,0
+TUFS A,Natsuki Doi,0,74,0,1,Titech B,0
+KDS J,Yui Aiyama,75,0,37,0,TokyoF,1
+KDS J,Takuto Ezaki,0,74,0,0,TokyoF,1
+TokyoF,Takehiro Tottori,75,0,37,1,KDS J,0
+TokyoF,Teppei Shibuta,0,76,0,1,KDS J,0
+KDS A,Takuya Yoda,75,0,37.5,1,Nanzan B,1
+KDS A,Ian Knives,0,77,0,1,Nanzan B,1
+Nanzan B,Nana Tashiro,74,0,37,0,KDS A,0
+Nanzan B,Ryouta Nasu,0,73,0,0,KDS A,0
+Sophia B,Haruka Sone,74,0,36,1,GUDSC,1
+Sophia B,Miho Hanamatsu,0,73,0,1,GUDSC,1
+GUDSC,Juri Hanada,73,0,36,0,Sophia B,0
+GUDSC,Yuka Yamaoka,0,73,0,0,Sophia B,0
+TokyoE,Ayaka Watanabe,76,0,38,1,TUSB,1
+TokyoE,Riko Ishimaru,0,76,0,1,TUSB,1
+TUSB,Miyu Ueda,75,0,37.5,0,TokyoE,0
+TUSB,Daiki Kato,0,74,0,0,TokyoE,0
+Titech B,Narumi Ogawa,75,0,37,1,TUFS A,1
+Titech B,Yuri Kimura,0,78,0,1,TUFS A,1
+TUFS A,Maya Ogura,75,0,37.5,0,Titech B,0
+TUFS A,Natsuki Doi,0,77,0,0,Titech B,0
+TokyoE,Ayaka Watanabe,76,0,38,0,TUSB,1
+TokyoE,Riko Ishimaru,0,76,0,0,TUSB,1
+TUSB,Miyu Ueda,77,0,37.5,1,TokyoE,0
+TUSB,Daiki Kato,0,76,0,1,TokyoE,0
+Nanzan A,Momoko Shinozuka,74,0,37.5,1,YNUB,1
+Nanzan A,Tsunaki Watanabe,0,74,0,1,YNUB,1
+YNUB,Natsuki Hattori,73,0,36,0,Nanzan A,0
+YNUB,Risako Tsujimoto,0,72,0,0,Nanzan A,0
+KCUFSA,Shuhei Yamaguchi,76,0,37.5,0,WADB,1
+KCUFSA,Masayoshi Tani,0,75,0,0,WADB,1
+WADB,Mizuki Sanjo,78,0,37.5,1,KCUFSA,0
+WADB,Sayaka Fujii,0,79,0,1,KCUFSA,0
+Hit-U E,Akifumi Momose,73,0,37,1,KDS D,1
+Hit-U E,Azusa Iida,0,76,0,1,KDS D,1
+KDS D,Rena Kitsui,74,0,37.5,0,Hit-U E,0
+KDS D,Shunsuke Kanda,0,73,0,0,Hit-U E,0
+TokyoD,Masafumi Mori,74,0,37.5,0,KDS E,1
+TokyoD,Yuta Kitaoka,0,75,0,0,KDS E,1
+KDS E,Kae Natsume,76,0,38.5,1,TokyoD,0
+KDS E,Yuki Maeda,0,76,0,1,TokyoD,0
+Takushoku A,Mizuho Houjyou,77,0,38,0,SIT B,1
+Takushoku A,Kousuke Chiaya,0,76,0,0,SIT B,1
+SIT B,Yuka Nemoto,76,0,39,1,Takushoku A,0
+SIT B,Haruka Saito,0,77,0,1,Takushoku A,0
+TokyoM,Kota Ando,74,0,38.5,0,YNUA,1
+TokyoM,Kazune Atsumi,0,75,0,0,YNUA,1
+YNUA,Kento Tatsuno,77,0,38,1,TokyoM,0
+YNUA,Yuki Shibata,0,75,0,1,TokyoM,0
+WADA,Momoko Haga,79,0,38.5,1,TUFS B,1
+WADA,Minami Kurokami,0,80,0,1,TUFS B,1
+TUFS B,Tomoaki Watanabe,75,0,37,0,WADA,0
+TUFS B,Suhui Lin,0,76,0,0,WADA,0
+Hit-U B,Kotaro Nakamura,76,0,38.5,1,TCUEB,1
+Hit-U B,Yuna Chi,0,76,0,1,TCUEB,1
+TCUEB,Saya Yoshioka,76,0,37.5,0,Hit-U B,0
+TCUEB,Misaki Tamura,0,75,0,0,Hit-U B,0
+YNUC,Daiki Iinuma,74,0,36,0,KDS H,1
+YNUC,Hidemi Nagai,0,72,0,0,KDS H,1
+KDS H,Shunki Nakamura,77,0,37.5,1,YNUC,0
+KDS H,Ibuki Sakanushi,0,75,0,1,YNUC,0
+AIU C,Hinako Kondo,74,0,37,0,QUA,1
+AIU C,Kurumi Otani,0,76,0,0,QUA,1
+QUA,Naoya Kondo,74,0,37,1,AIU C,0
+QUA,Shotaro Tsunoda,0,78,0,1,AIU C,0
+Osaka A,Yohei Koike,76,0,38,0,TokyoI,1
+Osaka A,Yuriko Tadano,0,74,0,0,TokyoI,1
+TokyoI,Riko Shimizu,76,0,38,1,Osaka A,0
+TokyoI,Ryo Hiramoto,0,76,0,1,Osaka A,0
+TokyoK,Takahito Yoneda,74,0,37,0,WADD,1
+TokyoK,Ryu Hotta,0,73,0,0,WADD,1
+WADD,Yuki Imai,75,0,37.5,1,TokyoK,0
+WADD,Shun Motokawa,0,74,0,1,TokyoK,0
+TokyoJ,Satoko Yasukawa,76,0,38,1,AIU A,1
+TokyoJ,Miho Horie,0,77,0,1,AIU A,1
+AIU A,Yuichi Tsuchibuchi,75,0,37.5,0,TokyoJ,0
+AIU A,Natsumi Kawase,0,75,0,0,TokyoJ,0
+Hit-U C,Chihiro Saito,77,0,38.5,1,TUSA,1
+Hit-U C,Yuka Fujita,0,75,0,1,TUSA,1
+TUSA,Mizuho Hayashi,75,0,37.5,0,Hit-U C,0
+TUSA,Takahiro Muramatsu,0,74,0,0,Hit-U C,0
+KDS I,Tatsuya Morimoto,75,0,37,1,WADE,1
+KDS I,Kentaro Gonaka,0,76,0,1,WADE,1
+WADE,Takuro Nogami,73,0,36.5,0,KDS I,0
+WADE,Haruka Katakame,0,74,0,0,KDS I,0
+KDS F,Kyoko Kato,75,0,37.5,1,TokyoL,1
+KDS F,Taro Ochiai,0,76,0,1,TokyoL,1
+TokyoL,Akihiro Iida,75,0,37.5,0,KDS F,0
+TokyoL,Kosuke Doi,0,74,0,0,KDS F,0
+Nagoya B,Kengo Kimura,73,0,36.5,0,TokyoA,1
+Nagoya B,Tomoyuki Sato,0,75,0,0,TokyoA,1
+TokyoA,Aikihiko Shimoyama,75,0,37,1,Nagoya B,0
+TokyoA,Maki Minemura,0,75,0,1,Nagoya B,0
+Tsuda A,Fumiyo Jin,75,0,37.5,0,TokyoH,1
+Tsuda A,Shoka Ito,0,73,0,0,TokyoH,1
+TokyoH,Kodai Kuroiwa,74,0,37.5,1,Tsuda A,0
+TokyoH,Soki Kimura,0,77,0,1,Tsuda A,0
+Nagoya B,Kengo Kimura,76,0,38,1,TokyoA,1
+Nagoya B,Tomoyuki Sato,0,77,0,1,TokyoA,1
+TokyoA,Aikihiko Shimoyama,76,0,38,0,Nagoya B,0
+TokyoA,Maki Minemura,0,76,0,0,Nagoya B,0
+KCUFSB,Akari Takita,75,0,38,0,Tsuda B,1
+KCUFSB,Kyoka Yoshida,0,74,0,0,Tsuda B,1
+Tsuda B,Yuji Masumura,76,0,37.5,1,KCUFSB,0
+Tsuda B,Yuki Fukui,0,74,0,1,KCUFSB,0
+Nagoya B,Kengo Kimura,74,0,37.5,1,TokyoA,1
+Nagoya B,Tomoyuki Sato,0,77,0,1,TokyoA,1
+TokyoA,Aikihiko Shimoyama,75,0,37.5,0,Nagoya B,0
+TokyoA,Maki Minemura,0,75,0,0,Nagoya B,0
