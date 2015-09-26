@@ -136,7 +136,7 @@ def config_function_factory(key):
 			if record:
 				return record[key]
 			else:
-				db.general.insert({'maintainance':False, 'round_n':0, 'adj_timer':None})
+				db.general.insert({'maintainance':True, 'round_n':0, 'adj_timer':None})
 				return config_function_factory(key)()
 		else:
 			db.general.update({}, {'$set': {key:value}})
