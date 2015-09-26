@@ -11,7 +11,7 @@
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
-CODENAME="tab"
+CODENAME="utab"
 
 import os, csv, cStringIO, collections, json
 from time import time
@@ -324,8 +324,8 @@ def adjs_edit_post_callback(name):
 				timediff = int(now - timer)
 				timediff_of('adjs', name, round_n, timediff)
 		gov, opp = data['gov'], data['opp']
-		result_db('teams', round_n).update({'from':name, 'side':'gov'}, {'from':name, 'name':gov['name'], 'side':'gov', 'win':gov['win'], 'pm':gov['pm'], 'mg':gov['mg'], 'gr':gov['gr'], 'total':gov['total']}, True)
-		result_db('teams', round_n).update({'from':name, 'side':'opp'}, {'from':name, 'name':opp['name'], 'side':'opp', 'win':opp['win'], 'lo':opp['lo'], 'mo':opp['mo'], 'or':opp['or'], 'total':opp['total']}, True)
+		result_db('teams', round_n).update({'from':name, 'side':'gov'}, {'from':name, 'name':gov['name'], 'side':'gov', 'win':gov['win'], 'pm':gov['pm'], 'mg':gov['mg'], 'gr':gov['gr'], 'total':gov['total'], 'opponent':opp['name']}, True)
+		result_db('teams', round_n).update({'from':name, 'side':'opp'}, {'from':name, 'name':opp['name'], 'side':'opp', 'win':opp['win'], 'lo':opp['lo'], 'mo':opp['mo'], 'or':opp['or'], 'total':opp['total'], 'opponent':gov['name']}, True)
 	return redirect('/adjs/')
 
 @app.route('/admin/')
@@ -378,7 +378,11 @@ def admin_config_post_callback():
 @flask_login.login_required
 def admin_rollback_round_callback(n):
 	round_n = config_round_n()
+	r = db.general.find_one()['round_n']
 	db.general.update({'round_n':round_n}, {'$set':{'round_n':n}})
+	for i in xrange(r):
+		round_db('adjs', i).remove()
+		result_db('teams', i).remove()
 	return redirect('/admin/')
 
 @app.route('/admin/maintainance/<to>', methods=['GET'])
@@ -437,14 +441,17 @@ def csv_writer(data, header=None, **kwargs):
 	csv.writer(csv_file, **kwargs).writerows(data)
 	return csv_file.getvalue()
 
-def make_json_response(data, filename):
+def make_json_response(data, filename=None):
 	response = make_response()
 	response.data = json.dumps(data)
-	response.headers['Content-Type'] = 'application/octet-stream'
-	response.headers['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
+	if filename is None:
+		response.headers['Content-Type'] = 'application/json'
+	else:
+		response.headers['Content-Type'] = 'application/octet-stream'
+		response.headers['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
 	return response
 
-def make_csv_response(data, filename, header=None, **kwargs):
+def make_csv_response(data, filename=None, header=None, **kwargs):
 	if header:
 		data.insert(0, header)
 	response = make_response()
@@ -458,7 +465,7 @@ def make_csv_response(data, filename, header=None, **kwargs):
 
 @app.route('/data/round<int:n>/Results<int:m>.json')
 @flask_login.login_required
-def data_ballots_csv_callback(n, m):
+def data_ballots_json_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	data = []
 	
@@ -468,6 +475,23 @@ def data_ballots_csv_callback(n, m):
 		data.append(it)
 	
 	return make_json_response(data, 'Results{0}.json'.format(m))
+
+# not in use
+@app.route('/data/round<int:n>/Results<int:m>.csv')
+@flask_login.login_required
+def data_ballots_csv_callback(n, m):
+	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
+	data = []
+	
+	for item in result_db('teams', n).find():
+		it = dict(item)
+		it.pop('_id')
+		if it['side'] == 'gov':
+			data.append([it['from'], it['name'], it['pm']['name'], it['pm']['score'], it['mg']['name'], it['mg']['score'], it['gr']['name'], it['gr']['score'], it['total'], it['win'], it['opponent'], it['side']])
+		else:
+			data.append([it['from'], it['name'], it['lo']['name'], it['lo']['score'], it['mo']['name'], it['mo']['score'], it['or']['name'], it['or']['score'], it['total'], it['win'], it['opponent'], it['side']])
+	
+	return make_csv_response(data, 'Results{0}.csv'.format(m))
 
 if __name__ == '__main__':
 	app.run(debug=True)
