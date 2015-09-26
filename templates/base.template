@@ -74,13 +74,7 @@
 						<li><a href="/admin/">Admin</a></li>
 						{% endif %}
 						<li><a href="/draw/">Draw</a></li>
-						<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Adjudicators <span class="caret"></span></a>
-						<ul class="dropdown-menu">
-							<li><a href="/adjs/">Score Sheet</a></li>
-							<li><a href="/adjs-eva/">Judge Evaluations</a></li>
-						</ul>
-						<li><a href="/teams/">Debaters</a></li>
+						<li><a href="/adjs/">Score Sheets</a></li>
 					</ul>
 					{% if admin %}
 						<p class="navbar-text navbar-right"><a class="navbar-link" href="/logout/">Sign out</a></p>

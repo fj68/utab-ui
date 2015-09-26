@@ -28,7 +28,7 @@
 			return 'wait';
 		}
 		
-		function save(){
+		function confirm(){
 			try {
 				var data = get_data();
 			} catch(e) {
@@ -37,6 +37,16 @@
 				
 				throw e;
 				
+				return false;
+			}
+			
+			return data;
+		}
+		
+		function save(){
+			var data = confirm();
+			
+			if(!data){
 				return;
 			}
 			

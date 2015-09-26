@@ -39,11 +39,15 @@ else:
 	# Not on an app with the MongoHQ add-on, do some localhost action
 	#mongo = PyMongo(app)
 	connection = Connection('localhost', 27017)
-	db = connection['tab']
+	db = connection['utab']
 
 # init Flask Login
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+
+# add admin to session
+ADMIN_USERNAME = 'admin'
+ADMIN_PASSWORD = 'admin'
 
 # User Object for session control with flask.ext.login
 class User():
@@ -132,7 +136,7 @@ def config_function_factory(key):
 			if record:
 				return record[key]
 			else:
-				db.general.insert({'maintainance':True, 'round_n':0, 'adj_timer':None, 'team_timer':None, 'adj_eva_timer':None})
+				db.general.insert({'maintainance':False, 'round_n':0, 'adj_timer':None})
 				return config_function_factory(key)()
 		else:
 			db.general.update({}, {'$set': {key:value}})
@@ -141,8 +145,6 @@ def config_function_factory(key):
 config_round_n = config_function_factory('round_n')
 config_maintainance = config_function_factory('maintainance')
 config_adj_timer = config_function_factory('adj_timer')
-config_adj_eva_timer = config_function_factory('adj_eva_timer')
-config_team_timer = config_function_factory('team_timer')
 
 def round_db_function_factory(key):
 	def _(db, name, round_n, value=None):
@@ -187,6 +189,12 @@ def flatten(l):
 				l[i:i + 1] = l[i]
 		i += 1
 	return l
+
+# add sessions
+if session_db().find({'name':ADMIN_USERNAME}).count() <= 0:
+	session_db().insert({'name':ADMIN_USERNAME, 'password':generate_password_hash(ADMIN_PASSWORD)})
+else:
+	session_db().update({'name':ADMIN_USERNAME}, {'$set': {'name':ADMIN_USERNAME, 'password':generate_password_hash(ADMIN_PASSWORD)}})
 
 # favicon
 @app.route('/favicon.ico')
@@ -320,144 +328,6 @@ def adjs_edit_post_callback(name):
 		result_db('teams', round_n).update({'from':name, 'side':'opp'}, {'from':name, 'name':opp['name'], 'side':'opp', 'win':opp['win'], 'lo':opp['lo'], 'mo':opp['mo'], 'or':opp['or'], 'total':opp['total']}, True)
 	return redirect('/adjs/')
 
-@app.route('/adjs-eva/')
-def adjs_eva_callback():
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	tournament_name = config_tournament_name(CODENAME)
-	round_n = config_round_n()
-	data = []
-	for item in round_db('adjs_eva', round_n).find():
-		if len(item['round']['chair']) + len(item['round']['panel']) + len(item['round']['trainee']) > 1:
-			data.append(item)
-
-	data = sort_by_timediff(data)
-	return render_template('adjs_eva.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data, timediff2str=timediff2str)
-
-@app.route('/adjs-eva/<name>/cancel/<int:round_n>')
-def adjs_eva_edit_cancel_callback(name, round_n):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	if timediff_of('adjs_eva', name, round_n) == -1:
-		past_status = 'unsaved'
-	else:
-		past_status = 'saved'
-	status_of('adjs_eva', name, round_n, past_status)
-	return redirect('/adjs-eva/')
-
-@app.route('/adjs-eva/<name>/', methods=['GET'])
-def adjs_eva_edit_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	tournament_name = config_tournament_name(CODENAME)
-	round_n = config_round_n()
-	data = first(round_db('adjs_eva', round_n).find({'name':name}))
-	past_status = status_of('adjs_eva', name, round_n)
-	status_of('adjs_eva', name, round_n, 'editing')
-	config = db.config.find_one()
-	feedback_range = config['score_range_adj']
-	other_adjs_chair = []
-	other_adjs_panel = []
-	other_adjs_trainee = []
-	for chair in data['round']['chair']:
-		if chair != data['name']:
-			other_adjs_chair.append({'role':'chair', 'name':chair})
-	for panel in data['round']['panel']:
-		if panel != data['name']:
-			other_adjs_panel.append({'role':'panel', 'name':panel})
-	for trainee in data['round']['trainee']:
-		if trainee != data['name']:
-			other_adjs_trainee.append({'role':'trainee', 'name':trainee})
-	other_adjs = []
-	if data['role'] == 'chair':
-		other_adjs = other_adjs_panel + other_adjs_trainee
-	elif data['role'] == 'panel':
-		other_adjs = other_adjs_chair
-	return render_template('adjs_eva_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, past_status=past_status, frange=frange, round_n=round_n, data=data, feedback_range=feedback_range, other_adjs=other_adjs, pre_float_to_str=pre_float_to_str)
-
-@app.route('/adjs-eva/<name>/', methods=['POST'])
-def adjs_eva_edit_post_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	data = request.get_json()
-	timer = config_adj_eva_timer()
-	round_n = config_round_n()
-	print data
-	return redirect('/adjs/')
-	if data is not None:
-		status_of('adjs_eva', name, round_n, 'saved')
-		if timer is None:
-			config_adj_eva_timer(time())
-			timediff_of('adjs_eva', name, round_n, 0)
-		else:
-			if timediff_of('adjs_eva', name, round_n) == -1:
-				now = time()
-				timediff = int(now - timer)
-		timediff_of('adjs_eva', name, round_n, 0)
-		for adj in data['adjs']:
-			result_db('adjs', round_n).update({'from':name, 'name':adj['name']}, {'from':name, 'name':adj['name'], 'role':adj['role'], 'score':adj['score']}, True)
-	return redirect('/adjs-eva/')
-
-@app.route('/teams/')
-def teams_callback():
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	tournament_name = config_tournament_name(CODENAME)
-	round_n = config_round_n()
-	data = sort_by_timediff(tolist(round_db('teams', round_n).find()))
-	return render_template('teams.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data, timediff2str=timediff2str)
-
-@app.route('/teams/<name>/cancel/<int:round_n>')
-def teams_edit_cancel_callback(name, round_n):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	if timediff_of('teams', name, round_n) == -1:
-		past_status = 'unsaved'
-	else:
-		past_status = 'saved'
-	status_of('teams', name, round_n, past_status)
-	return redirect('/teams/')
-
-@app.route('/teams/<name>/', methods=['GET'])
-def teams_edit_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	tournament_name = config_tournament_name(CODENAME)
-	round_n = config_round_n()
-	data = first(round_db('teams', round_n).find({'name':name}))
-	status_of('teams', name, round_n, 'editing')
-	config = db.config.find_one()
-	feedback_range = config['score_range_adj']
-	num_of_adjs = len(data['round']['chair']) + len(data['round']['panel'])
-	return render_template('teams_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, frange=frange, round_n=round_n, data=data, feedback_range=feedback_range, num_of_adjs=num_of_adjs, pre_float_to_str=pre_float_to_str)
-
-@app.route('/teams/<name>/', methods=['POST'])
-def teams_edit_post_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
-	post_data = request.get_json()
-	timer = config_team_timer()
-	round_n = config_round_n()
-	if post_data is not None:
-		status_of('teams', name, round_n, 'saved')
-		if timer is None:
-			config_team_timer(time())
-			timediff_of('teams', name, round_n, 0)
-		else:
-			if timediff_of('teams', name, round_n) == -1:
-				now = time()
-				timediff = int(now - timer)
-				timediff_of('teams', name, round_n, timediff)
-		data = post_data['data']
-		comment = post_data['comment']
-		for item in round_db('adjs', round_n).find({'name':data['name']}):
-			role = item['role']
-		result_db('adjs', round_n).update({'from':name}, {'from':name, 'name':data['name'], 'role':role, 'score':data['score']}, True)
-		if comment and comment['content'] and comment['content'] != '':
-			comment_db('adjs', round_n).update({'from':comment['from']}, {'from':comment['from'], 'to':comment['to'], 'content':comment['content']}, True)
-		return redirect('/teams/')
-	return redirect('/teams/{0}/'.formtat(name))
-
 @app.route('/admin/')
 @app.route('/admin/home/')
 @flask_login.login_required
@@ -481,7 +351,7 @@ def admin_config_post_callback():
 	if _ is not None:
 		data = {}
 		data['tournament_name'] = _['tournament_name']
-		for t in ['const', 'reply', 'adj']:
+		for t in ['const', 'reply']:
 			t_min = _['score_range_' + t + '_min']
 			t_max = _['score_range_' + t + '_max']
 			t_step = _['score_range_' + t + '_step']
@@ -544,13 +414,8 @@ def import_data(teams_data, draw_data, next_round):
 		db.draw.insert(draw)
 		
 		data_adjs = []
-		data_teams = []
 		
 		for r_info in db.draw.find():
-			for side, team_name in [('gov', r_info['gov']), ('opp', r_info['opp'])]:
-				team = {'timediff':-1, 'status':'unsaved', 'round':r_info, 'name':team_name, 'side':side}
-				data_teams.append(team)
-			
 			for chair in r_info['chair']:
 				adj = {'timediff':-1, 'status':'unsaved', 'round':r_info, 'name':chair, 'role':'chair'}
 				data_adjs.append(adj)
@@ -560,15 +425,10 @@ def import_data(teams_data, draw_data, next_round):
 		
 		round_db('adjs', next_round).remove()
 		round_db('adjs', next_round).insert(data_adjs)
-		round_db('adjs_eva', next_round).remove()
-		round_db('adjs_eva', next_round).insert(data_adjs)
-		round_db('teams', next_round).remove()
-		round_db('teams', next_round).insert(data_teams)
 		maintainance = config_maintainance()
 		db.general.remove()
-		db.general.insert({'round_n':next_round, 'adj_timer':None, 'team_timer':None, 'maintainance':maintainance})
+		db.general.insert({'round_n':next_round, 'adj_timer':None, 'maintainance':maintainance})
 		result_db('adjs', next_round).remove()
-		result_db('teams', next_round).remove()
 		return True
 	return False
 
@@ -608,39 +468,6 @@ def data_ballots_csv_callback(n, m):
 		data.append(it)
 	
 	return make_json_response(data, 'Results{0}.json'.format(m))
-
-@app.route('/data/round<n>/teams<m>.json')
-@flask_login.login_required
-def data_teams_callback(n, m):
-	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
-	data = []
-	
-	for item in result_db('teams', n).find():
-		it = dict(item)
-		it.pop('_id')
-		data.append(it)
-	
-	return make_json_response(data, 'teams{0}.json'.format(m))
-
-@app.route('/data/round<int:n>/Results_of_adjs<int:m>.json')
-@flask_login.login_required
-def data_feedbacks_csv_callback(n, m):
-	data = []
-	
-	for item in result_db('adjs', n).find():
-		it = dict(item)
-		it.pop('_id')
-		data.append(it)
-	
-	return make_json_response(data, 'Results_of_adjs{0}.json'.format(m))
-
-@app.route('/data/round<int:n>/comments.csv')
-@flask_login.login_required
-def data_comments_csv_callback(n):
-	data = []
-	for item in comment_db('adjs', n).find():
-		data.append([item['to'], item['from'], item['content'].replace('\n', '\\n').encode('utf-8')])
-	return make_csv_response(data, 'comments.csv', header=['to', 'from', 'comment'], quoting=csv.QUOTE_MINIMAL)
 
 if __name__ == '__main__':
 	app.run(debug=True)
