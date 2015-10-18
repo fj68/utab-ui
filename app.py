@@ -13,7 +13,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 CODENAME="utab"
 
-import os, csv, cStringIO, collections, json
+import sys, os, csv, cStringIO, collections, json
 from time import time
 from urlparse import urlparse
 
