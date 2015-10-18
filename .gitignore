@@ -1,3 +1,4 @@
 *.pyc
 *.pyo
 json2csv.*
+*.csv

@@ -17,6 +17,39 @@
 			});
 		}
 		
+		function change_account(){
+			function cry(p){return p;}
+			
+			var old_u = prompt('Enter current username:');
+			if(old_u == null || old_u == undefined){return;}
+			var old_p = prompt('Enter current password:');
+			if(old_p == null || old_p == undefined){return;}
+			var new_u = prompt('Enter new username:');
+			if(new_u == null || new_u == undefined){return;}
+			var new_p = prompt('Enter new password:');
+			if(new_p == null || new_p == undefined){return;}
+			
+			var data = {
+				'old_u': cry(old_u),
+				'old_p': cry(old_p),
+				'new_u': cry(new_u),
+				'new_p': cry(new_p)
+			};
+			
+			$.ajax({
+				url: '/admin/account',
+				type: 'POST',
+				data: JSON.stringify(data),
+				contentType: 'application/json',
+				dataType:'text'
+			}).done(function(data){
+				alert(data);
+				location.href='/login/';
+			}).fail(function(data){
+				alert('Error: ' + data.status + ' ' + data.statusText);
+			});
+		}
+		
 		function rollback(){
 			var n = prompt('[Be Careful] Round to Rollback: '{% if round_n >= 1 %}, {{round_n-1}}{% endif %});
 			if(n != null && n != '' && !isNaN(n)){
@@ -85,6 +118,7 @@
 		<div class="panel-collapse collapse in" id="dashboard">
 			<div class="list-group">
 				<a class="list-group-item" href="/admin/config/"><span class="glyphicon glyphicon-cog"></span> General Config</a>
+				<a class="list-group-item" href="javascript:change_account();"><span class="glyphicon glyphicon-user"></span> Admin Account</a>
 				<a class="list-group-item" href="javascript:maintainance('{% if maintainance == true %}off{% else %}on{% endif %}');"><span class="glyphicon glyphicon-wrench"></span> Switch Maintainance Mode {% if maintainance == true %}Off{% else %}On{% endif %}</a>
 				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-chevron-right"></span> Proceed to Round {{round_n+1}}</a>
 				<a class="list-group-item" href="javascript:rollback();"><span class="glyphicon glyphicon-repeat"></span> Rollback Round</a>

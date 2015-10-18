@@ -18,10 +18,10 @@
 	<link rel="icon" type="image/png" href="/static/icons/favicon-32x32.png" sizes="32x32">
 	<link rel="icon" type="image/png" href="/static/icons/favicon-96x96.png" sizes="96x96">
 	<link rel="icon" type="image/png" href="/static/icons/favicon-16x16.png" sizes="16x16">
-	<link rel="manifest" href="/static/icons/manifest.json">
+	<link rel="manifest" href="/icons/manifest.json">
 	<link rel="shortcut icon" href="/static/icons/favicon.ico">
-	<meta name="apple-mobile-web-app-title" content="6th Icho Cup">
-	<meta name="application-name" content="6th Icho Cup">
+	<meta name="apple-mobile-web-app-title" content="{{tournament_name}}">
+	<meta name="application-name" content="{{tournament_name}}">
 	<meta name="msapplication-TileColor" content="#da532c">
 	<meta name="msapplication-TileImage" content="/static/icons/mstile-144x144.png">
 	<meta name="msapplication-config" content="/static/icons/browserconfig.xml">

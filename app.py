@@ -47,7 +47,7 @@ login_manager.init_app(app)
 
 # add admin to session
 ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'admin'
+ADMIN_PASSWORD = 'nimda'
 
 # User Object for session control with flask.ext.login
 class User():
@@ -159,7 +159,7 @@ status_of = round_db_function_factory('status')
 
 def config_tournament_name(default=""):
 	record = db.config.find_one()
-	return record['tournament_name'] if record and record['tournament_name'] else default
+	return record['tournament_name'] if record and 'tournament_name' in record else default
 
 def round_db(d, n):
 	return db['round' + str(n) + '_' + d]
@@ -203,6 +203,13 @@ def icon_ico_callback():
 @app.route('/apple-touch-icon.png')
 def icon_apple_callback():
 	return app.send_static_file('icons/apple-touch-icon.png')
+@app.route('/icons/manifest.json')
+def icon_manifest_callback():
+	data = {}
+	with open('./templates/manifest.json') as f:
+		data = json.load(f)
+	data['name'] = config_tournament_name(CODENAME)
+	return make_json_response(data)
 
 # root
 @app.route('/')
@@ -385,6 +392,20 @@ def admin_rollback_round_callback(n):
 		result_db('teams', i).remove()
 	return redirect('/admin/')
 
+@app.route('/admin/account', methods=['POST'])
+@flask_login.login_required
+def admin_account_callback():
+	data = request.get_json()
+	user = session_db().find_one({'name':data['old_u']})
+	if user and 'name' in user and user['name']:
+		if User.validate_login(user['password'], data['old_p']):
+			session_db().remove({'name':data['old_u']})
+			session_db().insert({'name':data['new_u'], 'password':generate_password_hash(data['new_p'])})
+			return 'Success'
+		else:
+			return 'Fail: Password is incorrect.'
+	return 'Fail: No such name in database, \"{0}\"'.format(data['old_u'])
+
 @app.route('/admin/maintainance/<to>', methods=['GET'])
 @flask_login.login_required
 def admin_maintainance_callback(to):
@@ -408,7 +429,7 @@ def not_empty(l):
 	return [n for n in l if n != '']
 
 def import_data(teams_data, draw_data, next_round):
-	teams = csv_reader(teams_data, lambda _, r: {'name':r[0], 'speakers':r[1:3], 'institution_scale':r[3], 'institutions':r[4:]})
+	teams = csv_reader(teams_data, lambda _, r: {'name':r[0], 'speakers':r[1:4], 'institution_scale':r[4], 'institutions':r[5:]})
 	draw = csv_reader(draw_data, lambda _, r: {'gov':r[0], 'opp':r[1], 'chair':not_empty([r[2]]), 'panel':not_empty(r[3:5]), 'venue':r[5], 'trainee':[]})
 	
 	if teams and draw:
@@ -476,7 +497,7 @@ def data_ballots_json_callback(n, m):
 	
 	return make_json_response(data, 'Results{0}.json'.format(m))
 
-# not in use
+# not in use, kept for histrical reasons
 @app.route('/data/round<int:n>/Results<int:m>.csv')
 @flask_login.login_required
 def data_ballots_csv_callback(n, m):

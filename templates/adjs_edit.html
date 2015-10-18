@@ -50,17 +50,23 @@
 				return;
 			}
 			
-			$.ajax({
-				url: '/adjs/{{data["name"]}}/',
-				type: 'POST',
-				data: JSON.stringify(data),
-				contentType: 'application/json'
-			}).done(function(data){
-				location.href = '/adjs/';
-			}).fail(function(data){
-				$('#msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
-				$('#msgbox').show();
-			});
+			function sender(data){
+				return function(){
+					$.ajax({
+						url: '/adjs/{{data["name"]}}/',
+						type: 'POST',
+						data: JSON.stringify(data),
+						contentType: 'application/json'
+					}).done(function(data){
+						location.href = '/adjs/';
+					}).fail(function(data){
+						$('#dlg-msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
+						$('#dlg-msgbox').show();
+					});
+				};
+			}
+			
+			user_confirmation(data, sender);
 		}
 		
 		function nows(s){
@@ -103,6 +109,7 @@
 			
 			_['gov']['win'] = (_['winner'] == _['gov']['name']);
 			_['opp']['win'] = !_['gov']['win'];
+			/*
 			if(_['gov']['total'] == _['opp']['total']){
 				throw new Error('Tie-Win.');
 			}else if(_['gov']['win']){
@@ -114,6 +121,7 @@
 					throw new Error('Low-Win (Gov wins in total team-score though the selected Winner is Opp).');
 				}
 			}
+			*/
 			
 			return _;
 		}
@@ -136,6 +144,7 @@
 			return (not_null(value) && !isNaN(value));
 		}
 		
+		/*
 		function select_speaker(st, role, speakers){
 			var another = "";
 			for(i in speakers){
@@ -158,6 +167,71 @@
 		
 		function select_speaker_lo(lo){
 			select_speaker(lo, ['lo', 'mo', 'or'],[ "{{nows(opp['speakers'][0])}}", "{{nows(opp['speakers'][1])}}" ]);
+		}
+		*/
+		
+		var selected_speaker_table = {
+			'gov': {
+				{% for speaker in gov['speakers'] %}
+					"{{nows(speaker)}}": false,
+				{% endfor %}
+			},
+			'opp': {
+				{% for speaker in opp['speakers'] %}
+					"{{nows(speaker)}}": false,
+				{% endfor %}
+			}
+		};
+		
+		function select_speaker(side, sp){
+			for(p in selected_speaker_table[side]){
+				var p_is_sp = (p == sp);
+				
+				selected_speaker_table[side][p] = p_is_sp;
+				
+				if(side == 'gov'){
+					var role = ['pm', 'mg', 'gr'];
+				}else{
+					var role = ['lo', 'mo', 'or'];
+				}
+				for(i in role){
+					speaker = '#' + role[i] + '-name-' + p;
+					if(selected_speaker_table[side][p]){
+						//$(speaker + '-label').addClass('pre-selected');
+					}else{
+						//$(speaker + '-label').removeClass('pre-selected');
+					}
+				}
+			}
+		}
+		
+		function user_confirmation(data, sender){
+			$('#con_winner').text(data['winner']);
+			
+			$('#con_gov_name').text(data['gov']['name']);
+			$('#con_gov_total').text(data['gov']['total']);
+			$('#con_pm_name').text(data['gov']['pm']['name']);
+			$('#con_pm_pt').text(data['gov']['pm']['score']);
+			$('#con_mg_name').text(data['gov']['mg']['name']);
+			$('#con_mg_pt').text(data['gov']['mg']['score']);
+			$('#con_gr_name').text(data['gov']['gr']['name']);
+			$('#con_gr_pt').text(data['gov']['gr']['score']);
+			(data['gov']['win'])? $('#gov_star').show() : $('#gov_star').hide();
+			
+			$('#con_opp_name').text(data['opp']['name']);
+			$('#con_opp_total').text(data['opp']['total']);
+			$('#con_lo_name').text(data['opp']['lo']['name']);
+			$('#con_lo_pt').text(data['opp']['lo']['score']);
+			$('#con_mo_name').text(data['opp']['mo']['name']);
+			$('#con_mo_pt').text(data['opp']['mo']['score']);
+			$('#con_or_name').text(data['opp']['or']['name']);
+			$('#con_or_pt').text(data['opp']['or']['score']);
+			(data['opp']['win'])? $('#opp_star').show() : $('#opp_star').hide();
+			
+			$('#btn_save').on('click', sender(data));
+			
+			$('#dlg-msgbox').hide();
+			$('#dialog').modal('show');
 		}
 	</script>
 	
@@ -191,7 +265,7 @@
 		
 		{% macro abs(n) -%}{{n|abs}}{%- endmacro -%}
 		{%- set score_range_diff = abs(score_range['max'] - score_range['min'])|int -%}
-		.scrollable {
+		.scrollable.range {
 			min-width:{{ score_range_diff * 70 }}px;
 		}
 		
@@ -206,7 +280,64 @@
 		.form-group:last-child {
 			margin-bottom:0;
 		}
+		
+		.pre-selected {
+			background-color:#e6e6e6;
+		}
 	</style>
+{% endblock %}
+
+{% block dialog %}
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">Confirm <small>Round {{round_n+1}}</small></h4>
+	</div>
+	<div class="modal-body">
+		<p>
+			You are {{data["name"]}}, {{data["role"]|title}} @{{round["venue"]}}<br>
+			Your vote goes to <span id="con_winner"></span>.<br>
+		</p>
+		<h3>Gov: <span id="con_gov_name"></span> <span class="glyphicon glyphicon-star-empty" id="gov_star"></span></h3>
+		<div class="scrollable-container">
+		<table class="scrollable table table-bordered table-condensed">
+			<thead>
+				<tr><th>Role</th><th>Name</th><th>Pt.</th></tr>
+			</thead>
+			<tbody>
+				<tr><td>PM</td><td><span id="con_pm_name"></span></td><td><span id="con_pm_pt"></span></td></tr>
+				<tr><td>MG</td><td><span id="con_mg_name"></span></td><td><span id="con_mg_pt"></span></td></tr>
+				<tr><td>GR</td><td><span id="con_gr_name"></span></td><td><span id="con_gr_pt"></span></td></tr>
+				<tr><td>Total</td><td colspan="2"><span id="con_gov_total"></span></td></tr>
+			</tbody>
+		</table>
+		</div>
+		
+		<h3>Opp: <span id="con_opp_name"></span> <span class="glyphicon glyphicon-star-empty" id="opp_star"></span></h3>
+		<div class="scrollable-container">
+		<table class="scrollable table table-bordered table-condensed">
+			<thead>
+				<tr><th>Role</th><th>Name</th><th>Pt.</th></tr>
+			</thead>
+			<tbody>
+				<tr><td>LO</td><td><span id="con_lo_name"></span></td><td><span id="con_lo_pt"></span></td></tr>
+				<tr><td>MO</td><td><span id="con_mo_name"></span></td><td><span id="con_mo_pt"></span></td></tr>
+				<tr><td>OR</td><td><span id="con_or_name"></span></td><td><span id="con_or_pt"></span></td></tr>
+				<tr><td>Total</td><td colspan="2"><span id="con_opp_total"></span></td></tr>
+			</tbody>
+		</table>
+		</div>
+		
+		<div id="dlg-msgbox" class="alert alert-danger alert-dismissible">
+			<!--button type="button" class="close" data-dismiss="alert">
+				<span class="glyphicon glyphicon-remove" aris-hidden="true"></span>
+			</button-->
+			<span id="dlg-msgbox-content"></span>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" id="btn_save">Send</button>
+		<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	</div>
 {% endblock %}
 
 {% block content %}
@@ -269,7 +400,7 @@
 		</div>
 	</div>
 	
-	{% macro ballot_panel(id, role, team, speakers, _range, color='default') -%}
+	{% macro ballot_panel(side, id, role, team, speakers, _range, color='default') -%}
 	<div class="panel panel-{{color}}">
 		<div class="panel-heading">
 			<div class="panel-title">{{role}} <span class="badge pull-right">{{team}}</span></div>
@@ -279,7 +410,7 @@
 			<div class="form-group" id="{{id}}-name">
 				<div class="btn-group-vertical" data-toggle="buttons">
 					{% for speaker in speakers %}
-						<label for="{{id}}-name-{{nows(speaker)}}" class="btn btn-default" id="{{id}}-name-{{nows(speaker)}}-label" {% if id == 'pm' or id == 'lo' %}onclick="select_speaker_{{id}}('{{nows(speaker)}}');"{% endif %}>
+						<label for="{{id}}-name-{{nows(speaker)}}" class="btn btn-default" id="{{id}}-name-{{nows(speaker)}}-label" onclick="select_speaker('{{side}}', '{{nows(speaker)}}');" {# % if id == 'pm' or id == 'lo' %}onclick="select_speaker_{{id}}('{{nows(speaker)}}');"{% endif % #}>
 							<input type="radio" name="{{id}}-name" id="{{id}}-name-{{nows(speaker)}}" value="{{speaker}}"></input>
 							{{speaker}}
 						</label>
@@ -288,7 +419,7 @@
 			</div>
 			<div class="scrollable-container">
 			<div class="form-group" id="{{id}}-score">
-				<div class="scrollable">
+				<div class="scrollable range">
 				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					{% for i in frange(_range['min'], _range['max']+1, _range['step']) %}
 						<label for="{{id}}-score-{{i}}" class="btn btn-default" id="{{id}}-score-{{i}}-label">
@@ -305,19 +436,19 @@
 	{%- endmacro %}
 	
 	{% set gov_color, opp_color = 'success', 'warning' %}
-	{{ ballot_panel('pm', 'Prime Minister', round['gov'], gov['speakers'], score_range, gov_color) }}
-	{{ ballot_panel('lo', 'Leader of Opposition', round['opp'], opp['speakers'], score_range, opp_color) }}
-	{{ ballot_panel('mg', 'Member of Government', round['gov'], gov['speakers'], score_range, gov_color) }}
-	{{ ballot_panel('mo', 'Member of Opposition', round['opp'], opp['speakers'], score_range, opp_color) }}
-	{{ ballot_panel('or', 'Oppsition Reply', round['opp'], opp['speakers'], reply_range, opp_color) }}
-	{{ ballot_panel('gr', 'Government Reply', round['gov'], gov['speakers'], reply_range, gov_color) }}
+	{{ ballot_panel('gov', 'pm', 'Prime Minister', round['gov'], gov['speakers'], score_range, gov_color) }}
+	{{ ballot_panel('opp', 'lo', 'Leader of Opposition', round['opp'], opp['speakers'], score_range, opp_color) }}
+	{{ ballot_panel('gov', 'mg', 'Member of Government', round['gov'], gov['speakers'], score_range, gov_color) }}
+	{{ ballot_panel('opp', 'mo', 'Member of Opposition', round['opp'], opp['speakers'], score_range, opp_color) }}
+	{{ ballot_panel('opp', 'or', 'Oppsition Reply', round['opp'], opp['speakers'], reply_range, opp_color) }}
+	{{ ballot_panel('gov', 'gr', 'Government Reply', round['gov'], gov['speakers'], reply_range, gov_color) }}
 	
 	<hr>
 	
 	<div id="msgbox" class="alert alert-danger alert-dismissible">
-		<button type="button" class="close" data-dismiss="alert">
+		<!--button type="button" class="close" data-dismiss="alert">
 			<span class="glyphicon glyphicon-remove" aris-hidden="true"></span>
-		</button>
+		</button-->
 		<span id="msgbox-content"></span>
 	</div>
 	
