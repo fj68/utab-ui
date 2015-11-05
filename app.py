@@ -396,10 +396,9 @@ def admin_config_post_callback():
 @flask_login.login_required
 def admin_rollback_round_callback(n):
 	round_n = config_round_n()
-	r = db.general.find_one()['round_n']
 	db.general.update({'round_n':round_n}, {'$set':{'round_n':n}})
 	db.general.update({'round_n':round_n}, {'$set':{'adj_timer':None}})
-	for i in xrange(r):
+	for i in xrange(n + 1, round_n - n + 1):
 		round_db('adjs', i).remove()
 		result_db('teams', i).remove()
 		db.draw.remove()
