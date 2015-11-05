@@ -402,6 +402,9 @@ def admin_rollback_round_callback(n):
 	for i in xrange(r):
 		round_db('adjs', i).remove()
 		result_db('teams', i).remove()
+		db.draw.remove()
+		db.teams.remove()
+		
 	return redirect('/admin/')
 
 @app.route('/admin/account', methods=['POST'])
