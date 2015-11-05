@@ -1,0 +1,55 @@
+{% extends "base.template" %}
+
+{%block title %}Admin Manual{% endblock %}
+
+{% block content %}
+	<h1 class="page-header">Admin Manual</h1>
+	
+	<h3>初期設定</h3>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<p>
+				「Dashboard」から「General Config」を選んで、トーナメント名とスコアレンジをそれぞれ設定してください。<br>
+				そして再び「Dashboard」から「Admin Account」を選んで適切なユーザ名とパスワードを設定してください。<br>
+				初期状態での管理者アカウントは、ユーザ名「admin」パスワード「nimda」です。<br>
+				ユーザ名・パスワード共に半角文字（数字、記号含む）のみ利用できます。<br>
+				英字・数字・記号を組み合わせ、意味のある単語を含まない8桁以上のパスワードにするとある程度の信頼性があります。<br>
+				最後に、「Switch Maintainance Mode: Off」をクリックして、メンテナンスモードをオフにするのをお忘れなく。<br>
+			</p>
+		</div>
+	</div>
+	
+	<h3>ラウンド運営の流れ</h3>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<p>
+				まず、「Dashboard」の「Proceed to Round〜」を選択します。<br>
+				ダイアログが表示されるので、チーム情報と次のラウンドのマッチアップが書かれたファイルを選択し、「Proceed to Round〜」ボタンを押します。<br>
+				すると、ラウンドが進み、そのマッチアップに従って結果入力欄が自動で作成され、管理画面の「Round〜」から入力された結果をファイルとしてダウンロードできるようになりますので、結果入力が終了したらファイルをダウンロードします。
+			</p>
+		</div>
+	</div>
+	
+	<h3>Rollback Round</h3>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<p>
+				もしProceed後にマッチアップを変更した場合、Rollback Roundを選択し、どのラウンドまで戻るか入力すると、データを無視してラウンドを巻き戻すことができます。<br>
+				例えば、Proceed to Round 2を押し、マッチアップやチームをインポートした後、マッチアップが変わった場合は、Round1に戻したいので、「1」を入力します。<br>
+				Round 1をやり直す場合は「0」、Round 2をやり直す場合は「1」……のように数字で指定してください。<br>
+				しかし、そのラウンドのマッチアップや結果データを削除する作業ですので、慎重に利用してください。
+			</p>
+		</div>
+	</div>
+	
+	<h3>Maintainance Mode</h3>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<p>
+				「Dashboard」の「Switch Maintainance Mode On」をクリックしてメンテナンスモードにすると、管理者以外からはサイト全体が見られなくなります。<br>
+				結果入力が終了した後などに使用すると、第三者による不用意な変更を防ぐことができます。<br>
+				また、インストール後の初期状態ではメンテナンスモードになっていますので、「Switch Maintainance Mode Off」をクリックして、メンテナンスモードをオフにしてください。<br>
+			</p>
+		</div>
+	</div>
+{% endblock %}

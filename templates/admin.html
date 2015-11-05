@@ -122,6 +122,7 @@
 				<a class="list-group-item" href="javascript:maintainance('{% if maintainance == true %}off{% else %}on{% endif %}');"><span class="glyphicon glyphicon-wrench"></span> Switch Maintainance Mode {% if maintainance == true %}Off{% else %}On{% endif %}</a>
 				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-chevron-right"></span> Proceed to Round {{round_n+1}}</a>
 				<a class="list-group-item" href="javascript:rollback();"><span class="glyphicon glyphicon-repeat"></span> Rollback Round</a>
+				<a class="list-group-item" href="/admin/manual/"><span class="glyphicon glyphicon-book"></span> Admin Manual</a>
 			</div>
 		</div>
 	</div>
@@ -133,7 +134,8 @@
 		</div>
 		<div class="panel-collapse collapse in" id="round{{loop.index}}">
 			<div class="list-group">
-				<a class="list-group-item" href="/data/round{{loop.index}}/Results{{loop.index0}}.json"><span class="glyphicon glyphicon-floppy-save"></span> Ballots (Results{{loop.index0}}.json)</a>
+				<a class="list-group-item" href="/data/round{{loop.index}}/Results{{loop.index}}.csv"><span class="glyphicon glyphicon-floppy-save"></span> Ballots (Results{{loop.index}}.csv)</a>
+				<a class="list-group-item" href="/data/round{{loop.index}}/Results{{loop.index}}.json"><span class="glyphicon glyphicon-floppy-save"></span> Ballots (Results{{loop.index}}.json)</a>
 			</div>
 		</div>
 	</div>

@@ -23,6 +23,8 @@ from pymongo import Connection
 import flask.ext.login as flask_login
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from json2csv import json2list
+
 # init Flask and create app
 app = Flask(CODENAME)
 app.secret_key = 'futamuranization'
@@ -210,6 +212,15 @@ def icon_manifest_callback():
 		data = json.load(f)
 	data['name'] = config_tournament_name(CODENAME)
 	return make_json_response(data)
+
+# manual
+@app.route('/admin/manual/')
+@flask_login.login_required
+def manual_callback():
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintainance.html')
+	tournament_name = config_tournament_name(CODENAME)
+	return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name)
 
 # root
 @app.route('/')
@@ -484,35 +495,25 @@ def make_csv_response(data, filename=None, header=None, **kwargs):
 		response.headers['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
 	return response
 
-@app.route('/data/round<int:n>/Results<int:m>.json')
-@flask_login.login_required
-def data_ballots_json_callback(n, m):
-	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
+def get_results_as_json(n):
 	data = []
-	
 	for item in result_db('teams', n).find():
 		it = dict(item)
 		it.pop('_id')
 		data.append(it)
-	
-	return make_json_response(data, 'Results{0}.json'.format(m))
+	return data
 
-# not in use, kept for histrical reasons
+@app.route('/data/round<int:n>/Results<int:m>.json')
+@flask_login.login_required
+def data_ballots_json_callback(n, m):
+	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
+	return make_json_response(get_results_as_json(n), 'Results{0}.json'.format(m))
+
 @app.route('/data/round<int:n>/Results<int:m>.csv')
 @flask_login.login_required
 def data_ballots_csv_callback(n, m):
-	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
-	data = []
-	
-	for item in result_db('teams', n).find():
-		it = dict(item)
-		it.pop('_id')
-		if it['side'] == 'gov':
-			data.append([it['from'], it['name'], it['pm']['name'], it['pm']['score'], it['mg']['name'], it['mg']['score'], it['gr']['name'], it['gr']['score'], it['total'], it['win'], it['opponent'], it['side']])
-		else:
-			data.append([it['from'], it['name'], it['lo']['name'], it['lo']['score'], it['mo']['name'], it['mo']['score'], it['or']['name'], it['or']['score'], it['total'], it['win'], it['opponent'], it['side']])
-	
-	return make_csv_response(data, 'Results{0}.csv'.format(m))
+	data = json2list(get_results_as_json(n))
+	return make_csv_response(data, 'Results{0}.csv'.format(m), header=['team name', 'name', '1st score', '2nd score', '3rd score', 'win', 'opponent', 'side'])
 
 if __name__ == '__main__':
 	app.run(debug=True)
