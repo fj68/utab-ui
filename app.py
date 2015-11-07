@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# FIXIT!
+#  - rollback -> drawコレクションとteamコレクションがrollback前のまま（ラウンドごとに持つ必要がある）
+
 # todo
 #  - proceed_round前にadjとteamのballotが全部入力済みか確認
 #  - data-importer

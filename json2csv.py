@@ -112,8 +112,9 @@ def list_translater(src):
 	for speaker_name, store_value in store.items():
 		pt = store_value[1:]
 		item = store_value[0]
-		data.append([item[0], speaker_name, pt[0], pt[1], pt[2], item[1], item[2], item[3]])
+		data.append([item[0], speaker_name, pt[0], pt[1], pt[2], 1 if item[1] else 0, item[2], 1 if item[3] == 'gov' else 0])
 	data.sort(key=itemgetter(0, 1))
+	
 	return data
 
 def json2list(src):
