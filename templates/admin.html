@@ -78,7 +78,7 @@
 {% block dialog %}
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h4 class="modal-title">Data Importer <small>for Round {{round_n+1}}</small></h4>
+		<h4 class="modal-title"><span class="glyphicon glyphicon-arrow-right" style="font-size:10px;right:-3px;top:-8px"></span><span class="glyphicon glyphicon-compressed"></span> Data Importer <small>for Round {{round_n+1}}</small></h4>
 	</div>
 	<div class="modal-body">
 	<div class="container-fluid">
@@ -120,9 +120,10 @@
 				<a class="list-group-item" href="/admin/config/"><span class="glyphicon glyphicon-cog"></span> General Config</a>
 				<a class="list-group-item" href="javascript:change_account();"><span class="glyphicon glyphicon-user"></span> Admin Account</a>
 				<a class="list-group-item" href="javascript:maintainance('{% if maintainance == true %}off{% else %}on{% endif %}');"><span class="glyphicon glyphicon-wrench"></span> Switch Maintainance Mode {% if maintainance == true %}Off{% else %}On{% endif %}</a>
-				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-chevron-right"></span> Proceed to Round {{round_n+1}}</a>
+				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-send"></span> Proceed to Round {{round_n+1}}</a>
 				<a class="list-group-item" href="javascript:rollback();"><span class="glyphicon glyphicon-repeat"></span> Rollback Round</a>
 				<a class="list-group-item" href="/admin/manual/"><span class="glyphicon glyphicon-book"></span> Admin Manual</a>
+				<a class="list-group-item" href="/admin/info-board/"><span class="glyphicon glyphicon-comment"></span> Edit Info Board</a>
 			</div>
 		</div>
 	</div>

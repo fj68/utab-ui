@@ -30,6 +30,31 @@
 	<link rel="stylesheet" href="/static/css/bootstrap.min.css">
 	<script src="/static/js/jquery.min.js"></script>
 	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/marked.min.js"></script>
+	
+	<script>
+		function hide_info_board(){
+			$('#info-board').hide();
+		}
+		
+		$(document).ready(function(){
+			$.ajax({
+				url: '/$$$_info_board_$$$'
+			}).success(function(data){
+				if(!data.body || data.body === ''){
+					hide_info_board();
+				}else{
+					var info_title = data.title ? data.title : 'Information Board';
+					var info_body = marked(data.body);
+					$('#info-board-title').text(info_title);
+					$('#info-board-body').html(info_body);
+				}
+			}).error(function(data){
+				hide_info_board();
+				console.log(data.statusText);
+			});
+		});
+	</script>
 	
 	<style>
 		[data-toggle=collapse] {
@@ -62,9 +87,9 @@
 						<span class="icon-bar"></span>
 					</button>
 					<a class="navbar-brand" href="/home/" style="margin-right:0;padding-right:0;">
-						<img src="/static/icons/favicon-32x32.png{# % if admin %}favicon-32x32.png{% else %}brand-32x32.png{% endif % #}" alt="logo" style="position:relative;top:-7px;left:-7px;"/>
+						<img src="/static/icons/favicon.svg{# % if admin %}favicon-32x32.png{% else %}brand-32x32.png{% endif % #}" alt="logo" style="position:relative;top:-7px;left:-7px;float:left;" width="52px" height="32px"/>
+						<span style="margin-left:0;padding-left:0;">{{tournament_name}}</span>
 					</a>
-					<a class="navbar-brand" href="/home/" style="margin-left:0;padding-left:0;">{{tournament_name}}</a>
 				</div>
 
 				<!-- Collect the nav links, forms, and other content for toggling -->
@@ -95,6 +120,16 @@
 	</div>
 	
 	<main>
+		<div class="container" id="info-board">
+			<div class="panel panel-info">
+				<div class="panel-heading" data-toggle="collapse" data-target="#info-board-body-container">
+					<div class="panel-title"><span class="glyphicon glyphicon-comment"></span> <span id="info-board-title"></span><span class="glyphicon glyphicon-collapse pull-right"></span></div>
+				</div>
+				<div class="panel-collapse collapse in" id="info-board-body-container">
+					<div class="panel-body" id="info-board-body"></div>
+				</div>
+			</div>
+		</div>
 		<div class="container">
 			{% block content %}{% endblock %}
 		</div>

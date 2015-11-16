@@ -1,16 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# FIXIT!
-#  - rollback -> drawコレクションとteamコレクションがrollback前のまま（ラウンドごとに持つ必要がある）
-
-# todo
-#  - proceed_round前にadjとteamのballotが全部入力済みか確認
-#  - data-importer
-#  - data-outputter
-#  - adjs_editを再編集の際に値が選ばれているようにする
-#  - adjs_editでcancel押さずにウインドウを閉じるとstatusがeditingで残ってしまう
-
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
@@ -395,6 +385,41 @@ def admin_config_post_callback():
 		return redirect('/admin/')
 	return redirect('/admin/config/')
 
+# info board
+@app.route('/$$$_info_board_$$$')
+def info_board_callback():
+	data = db.info_board.find_one()
+	if data:
+		data.pop('_id')
+	else:
+		data = {}
+	return make_json_response(data)
+
+@app.route('/admin/info-board/')
+@flask_login.login_required
+def admin_info_board_callback():
+	tournament_name = config_tournament_name(CODENAME)
+	data = db.info_board.find_one()
+	if data:
+		data.pop('_id')
+	else:
+		data = {}
+	return render_template('admin_info_board.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, data=data)
+
+@app.route('/admin/info-board/', methods=['POST'])
+@flask_login.login_required
+def admin_info_board_post_callback():
+	_ = request.form
+	if _ is not None:
+		data = {
+			'title':_['info_title'],
+			'body':_['info_body']
+		}
+		db.info_board.remove()
+		db.info_board.insert(data)
+		return redirect('/admin/')
+	return redirect('/admin/info-board/')
+
 @app.route('/admin/rollback/<int:n>', methods=['GET', 'DELETE'])
 @flask_login.login_required
 def admin_rollback_round_callback(n):
@@ -478,6 +503,17 @@ def csv_writer(data, header=None, **kwargs):
 	csv_file = cStringIO.StringIO()
 	csv.writer(csv_file, **kwargs).writerows(data)
 	return csv_file.getvalue()
+
+def make_text_response(data, filename=None, filetype=None):
+	response = make_response()
+	response.data = data
+	filetype = filetype if filetype is not None else 'text/plain'
+	if filename is None:
+		response.headers['Content-Type'] = filetype
+	else:
+		response.headers['Content-Type'] = 'application/octet-stream'
+		response.headers['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
+	return response
 
 def make_json_response(data, filename=None):
 	response = make_response()
