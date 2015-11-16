@@ -1,3 +1,8 @@
 *.pyc
 *.pyo
 *.csv
+
+bin/*
+include/*
+lib/*
+local/*
