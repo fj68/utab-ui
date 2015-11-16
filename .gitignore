@@ -1,8 +1,10 @@
+.gitignore
+
 *.pyc
 *.pyo
 *.csv
 
-bin/*
-include/*
-lib/*
-local/*
+bin/
+include/
+lib/
+local/
