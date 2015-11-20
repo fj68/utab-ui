@@ -6,10 +6,7 @@ proceed_round前にadjとteamのballotが全部入力済みか確認
 選択済みアイテムの可視化
 adjs_editを再編集の際に値が選ばれているようにする
 editing mode : adjs_editでcancel押さずにウインドウを閉じるとstatusがeditingで残ってしまう
-コミからの連絡欄
 複数回答
-点数の分割入力
-入力後画面
 チュートリアル
 以前のマッチアップを見られるように
 Controllerの肥大化をなんとかする

@@ -16,7 +16,7 @@ from pymongo import Connection
 import flask.ext.login as flask_login
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from json2csv import json2list
+from json2csv import json2list, json2list_rym
 
 # init Flask and create app
 app = Flask(CODENAME)
@@ -109,7 +109,7 @@ def timediff2str(timediff):
 
 # utilities for db data
 def sort_by_timediff(data):
-	return sorted(sorted(data, key=lambda d: d['name']), key=lambda d: d['timediff'])
+	return sorted(sorted(data, key=lambda d: d['name']), key=lambda d: d['timediff'][0])
 
 def sort_by_venue(data):
 	return sorted(data, key=lambda d: d['venue'])
@@ -294,7 +294,7 @@ def adjs_callback():
 def adjs_edit_cancel_callback(name, round_n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
-	if timediff_of('adjs', name, round_n) == -1:
+	if timediff_of('adjs', name, round_n)[0] == -1:
 		past_status = 'unsaved'
 	else:
 		past_status = 'saved'
@@ -328,16 +328,21 @@ def adjs_edit_post_callback(name):
 		status_of('adjs', name, round_n, 'saved')
 		if timer is None:
 			config_adj_timer(time())
-			timediff_of('adjs', name, round_n, 0)
+			timediff_of('adjs', name, round_n, [0])
 		else:
-			if timediff_of('adjs', name, round_n) == -1:
-				now = time()
-				timediff = int(now - timer)
-				timediff_of('adjs', name, round_n, timediff)
+			p_td = timediff_of('adjs', name, round_n)
+			now = time()
+			timediff = int(now - timer)
+			if p_td[0] == -1:
+				timediff_of('adjs', name, round_n, [timediff])
+			else:
+				p_td.append(timediff)
+				print p_td
+				timediff_of('adjs', name, round_n, p_td)
 		gov, opp = data['gov'], data['opp']
 		result_db('teams', round_n).update({'from':name, 'side':'gov'}, {'from':name, 'name':gov['name'], 'side':'gov', 'win':gov['win'], 'pm':gov['pm'], 'mg':gov['mg'], 'gr':gov['gr'], 'total':gov['total'], 'opponent':opp['name']}, True)
 		result_db('teams', round_n).update({'from':name, 'side':'opp'}, {'from':name, 'name':opp['name'], 'side':'opp', 'win':opp['win'], 'lo':opp['lo'], 'mo':opp['mo'], 'or':opp['or'], 'total':opp['total'], 'opponent':gov['name']}, True)
-	return redirect('/adjs/')
+	return redirect('/adjs/#thanks')
 
 @app.route('/admin/')
 @app.route('/admin/home/')
@@ -484,10 +489,10 @@ def import_data(teams_data, draw_data, next_round):
 		
 		for r_info in db.draw.find():
 			for chair in r_info['chair']:
-				adj = {'timediff':-1, 'status':'unsaved', 'round':r_info, 'name':chair, 'role':'chair'}
+				adj = {'timediff':[-1], 'status':'unsaved', 'round':r_info, 'name':chair, 'role':'chair'}
 				data_adjs.append(adj)
 			for panel in r_info['panel']:
-				adj = {'timediff':-1, 'status':'unsaved', 'round':r_info, 'name':panel, 'role':'panel'}
+				adj = {'timediff':[-1], 'status':'unsaved', 'round':r_info, 'name':panel, 'role':'panel'}
 				data_adjs.append(adj)
 		
 		round_db('adjs', next_round).remove()
@@ -554,8 +559,19 @@ def data_ballots_json_callback(n, m):
 @app.route('/data/round<int:n>/Results<int:m>.csv')
 @flask_login.login_required
 def data_ballots_csv_callback(n, m):
-	data = json2list(get_results_as_json(n))
+	data = json2list_rym(get_results_as_json(n))
 	return make_csv_response(data, 'Results{0}.csv'.format(m), header=['team name', 'name', '1st score', '2nd score', '3rd score', 'win', 'opponent', 'side'])
 
+@app.route('/data/round<int:n>/Results<int:m>_sep.csv')
+@flask_login.login_required
+def data_ballots_csv_sep_callback(n, m):
+	data = json2list(get_results_as_json(n))
+	return make_csv_response(data, 'Results{0}_sep.csv'.format(m), header=['team name', 'name', '1st score A', '1st score B', '2nd score A', '2nd score B', '3rd score A', '3rd score B', 'win', 'opponent', 'side'])
+
 if __name__ == '__main__':
-	app.run(debug=True)
+	if len(sys.argv) == 2:
+		app.run(host=sys.argv[1])
+	elif len(sys.argv) == 3:
+		app.run(host=sys.argv[1], port=int(sys.argv[2]))
+	else:
+		app.run(debug=True)

@@ -52,13 +52,16 @@
 			
 			function sender(data){
 				return function(){
+					console.log(data);
+					d = JSON.stringify(data);
+					console.log(d);
 					$.ajax({
 						url: '/adjs/{{data["name"]}}/',
 						type: 'POST',
-						data: JSON.stringify(data),
+						data: d,
 						contentType: 'application/json'
 					}).done(function(data){
-						location.href = '/adjs/';
+						location.href = '/adjs/#thanks';
 					}).fail(function(data){
 						$('#dlg-msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
 						$('#dlg-msgbox').show();
@@ -82,8 +85,10 @@
 				var role = roles[i];
 				_['gov'][role] = {};
 				_['gov'][role]['name'] = validate(not_null, $('[name=' + role + '-name]:checked').val(), '#' + role + '-name', 'Select <a href="#' + role + '-name" class="alert-link">' + role.toUpperCase() + '\'s Name</a>!');
-				_['gov'][role]['score'] = validate(is_number, Number($('[name=' + role + '-score]:checked').val()), '#' + role + '-score', 'Select <a href="#' + role + '-score" class="alert-link">' + role.toUpperCase() + '\'s Score!</a>');
-				_['gov']['total'] += _['gov'][role]['score'];
+				_['gov'][role]['score-a'] = validate(is_number, Number($('[name=' + role + '-score-a]:checked').val()), '#' + role + '-score-a', 'Select <a href="#' + role + '-score-a" class="alert-link">' + role.toUpperCase() + '\'s Score!</a>');
+				_['gov'][role]['score-b'] = validate(is_number, Number($('[name=' + role + '-score-b]:checked').val()), '#' + role + '-score-b', 'Select <a href="#' + role + '-score-b" class="alert-link">' + role.toUpperCase() + '\'s Score!</a>');
+				_['gov']['total'] += _['gov'][role]['score-a'];
+				_['gov']['total'] += _['gov'][role]['score-b'];
 			}
 			_['opp'] = {'name':"{{round['opp']}}", 'total':0};
 			var roles = ['lo', 'mo', 'or'];
@@ -91,8 +96,10 @@
 				var role = roles[i];
 				_['opp'][role] = {};
 				_['opp'][role]['name'] = validate(not_null, $('[name=' + role + '-name]:checked').val(), '#' + role + '-name', 'Select <a href="#' + role + '-name" class="alert-link">' + role.toUpperCase() + '\'s Name</a>!');
-				_['opp'][role]['score'] = validate(is_number, Number($('[name=' + role + '-score]:checked').val()), '#' + role + '-score', 'Select <a href="#' + role + '-score" class="alert-link">' + role.toUpperCase() + '\'s Score</a>!');
-				_['opp']['total'] += _['opp'][role]['score'];
+				_['opp'][role]['score-a'] = validate(is_number, Number($('[name=' + role + '-score-a]:checked').val()), '#' + role + '-score-a', 'Select <a href="#' + role + '-score-a" class="alert-link">' + role.toUpperCase() + '\'s Score</a>!');
+				_['opp'][role]['score-b'] = validate(is_number, Number($('[name=' + role + '-score-b]:checked').val()), '#' + role + '-score-b', 'Select <a href="#' + role + '-score-b" class="alert-link">' + role.toUpperCase() + '\'s Score</a>!');
+				_['opp']['total'] += _['opp'][role]['score-a'];
+				_['opp']['total'] += _['opp'][role]['score-b'];
 			}
 			
 			if(_['gov']['pm']['name'] == _['gov']['mg']['name']){
@@ -211,21 +218,27 @@
 			$('#con_gov_name').text(data['gov']['name']);
 			$('#con_gov_total').text(data['gov']['total']);
 			$('#con_pm_name').text(data['gov']['pm']['name']);
-			$('#con_pm_pt').text(data['gov']['pm']['score']);
+			$('#con_pm_pt_a').text(data['gov']['pm']['score-a']);
+			$('#con_pm_pt_b').text(data['gov']['pm']['score-b']);
 			$('#con_mg_name').text(data['gov']['mg']['name']);
-			$('#con_mg_pt').text(data['gov']['mg']['score']);
+			$('#con_mg_pt_a').text(data['gov']['mg']['score-a']);
+			$('#con_mg_pt_b').text(data['gov']['mg']['score-b']);
 			$('#con_gr_name').text(data['gov']['gr']['name']);
-			$('#con_gr_pt').text(data['gov']['gr']['score']);
+			$('#con_gr_pt_a').text(data['gov']['gr']['score-a']);
+			$('#con_gr_pt_b').text(data['gov']['gr']['score-b']);
 			(data['gov']['win'])? $('#gov_star').show() : $('#gov_star').hide();
 			
 			$('#con_opp_name').text(data['opp']['name']);
 			$('#con_opp_total').text(data['opp']['total']);
 			$('#con_lo_name').text(data['opp']['lo']['name']);
-			$('#con_lo_pt').text(data['opp']['lo']['score']);
+			$('#con_lo_pt_a').text(data['opp']['lo']['score-a']);
+			$('#con_lo_pt_b').text(data['opp']['lo']['score-b']);
 			$('#con_mo_name').text(data['opp']['mo']['name']);
-			$('#con_mo_pt').text(data['opp']['mo']['score']);
+			$('#con_mo_pt_a').text(data['opp']['mo']['score-a']);
+			$('#con_mo_pt_b').text(data['opp']['mo']['score-b']);
 			$('#con_or_name').text(data['opp']['or']['name']);
-			$('#con_or_pt').text(data['opp']['or']['score']);
+			$('#con_or_pt_a').text(data['opp']['or']['score-a']);
+			$('#con_or_pt_b').text(data['opp']['or']['score-b']);
 			(data['opp']['win'])? $('#opp_star').show() : $('#opp_star').hide();
 			
 			$('#btn_save').on('click', sender(data));
@@ -304,10 +317,13 @@
 				<tr><th>Role</th><th>Name</th><th>Pt.</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>PM</td><td><span id="con_pm_name"></span></td><td><span id="con_pm_pt"></span></td></tr>
-				<tr><td>MG</td><td><span id="con_mg_name"></span></td><td><span id="con_mg_pt"></span></td></tr>
-				<tr><td>GR</td><td><span id="con_gr_name"></span></td><td><span id="con_gr_pt"></span></td></tr>
-				<tr><td>Total</td><td colspan="2"><span id="con_gov_total"></span></td></tr>
+				<tr><td rowspan="2">PM</td><td rowspan="2"><span id="con_pm_name"></span></td><td align="right"><span id="con_pm_pt_a"></span></td></tr>
+				<tr><td align="right"><span id="con_pm_pt_b"></span></td></tr>
+				<tr><td rowspan="2">MG</td><td rowspan="2"><span id="con_mg_name"></span></td><td align="right"><span id="con_mg_pt_a"></span></td></tr>
+				<tr><td align="right"><span id="con_mg_pt_b"></span></td></tr>
+				<tr><td rowspan="2">GR</td><td rowspan="2"><span id="con_gr_name"></span></td><td align="right"><span id="con_gr_pt_a"></span></td></tr>
+				<tr><td align="right"><span id="con_gr_pt_b"></span></td></tr>
+				<tr><td colspan="2">Total</td><td align="right"><span id="con_gov_total"></span></td></tr>
 			</tbody>
 		</table>
 		</div>
@@ -319,10 +335,13 @@
 				<tr><th>Role</th><th>Name</th><th>Pt.</th></tr>
 			</thead>
 			<tbody>
-				<tr><td>LO</td><td><span id="con_lo_name"></span></td><td><span id="con_lo_pt"></span></td></tr>
-				<tr><td>MO</td><td><span id="con_mo_name"></span></td><td><span id="con_mo_pt"></span></td></tr>
-				<tr><td>OR</td><td><span id="con_or_name"></span></td><td><span id="con_or_pt"></span></td></tr>
-				<tr><td>Total</td><td colspan="2"><span id="con_opp_total"></span></td></tr>
+				<tr><td rowspan="2">LO</td><td rowspan="2"><span id="con_lo_name"></span></td><td align="right"><span id="con_lo_pt_a"></span></td></tr>
+				<tr><td align="right"><span id="con_lo_pt_b"></span></td></tr>
+				<tr><td rowspan="2">MO</td><td rowspan="2"><span id="con_mo_name"></span></td><td align="right"><span id="con_mo_pt_a"></span></td></tr>
+				<tr><td align="right"><span id="con_mo_pt_b"></span></td></tr>
+				<tr><td rowspan="2">OR</td><td rowspan="2"><span id="con_or_name"></span></td><td align="right"><span id="con_or_pt_a"></span></td></tr>
+				<tr><td align="right"><span id="con_or_pt_b"></span></td></tr>
+				<tr><td colspan="2">Total</td><td align="right"><span id="con_opp_total"></span></td></tr>
 			</tbody>
 		</table>
 		</div>
@@ -389,11 +408,11 @@
 				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					<label for="winner-gov" class="btn btn-default">
 						<input type="radio" name="winner" id="winner-gov" value="{{round['gov']}}"></input>
-						{{round['gov']}} <span class="badge pull-left">Gov</span>
+						<span class="badge pull-left">Gov</span> {{round['gov']}}
 					</label>
 					<label for="winner-opp" class="btn btn-default">
 						<input type="radio" name="winner" id="winner-opp" value="{{round['opp']}}"></input>
-						{{round['opp']}} <span class="badge pull-left">Opp</span>
+						<span class="badge pull-left">Opp</span> {{round['opp']}}
 					</label>
 				</div>
 			</div>
@@ -418,12 +437,26 @@
 				</div>
 			</div>
 			<div class="scrollable-container">
-			<div class="form-group" id="{{id}}-score">
+			<div class="form-group" id="{{id}}-score-a">
 				<div class="scrollable range">
 				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					{% for i in frange(_range['min'], _range['max']+1, _range['step']) %}
-						<label for="{{id}}-score-{{i}}" class="btn btn-default" id="{{id}}-score-{{i}}-label">
-							<input type="radio" name="{{id}}-score" id="{{id}}-score-{{i}}" value="{{i}}"></input>
+						<label for="{{id}}-score-{{i}}-a" class="btn btn-default" id="{{id}}-score-{{i}}-a-label">
+							<input type="radio" name="{{id}}-score-a" id="{{id}}-score-{{i}}-a" value="{{i}}"></input>
+							{{pre_float_to_str(i)}}
+						</label>
+					{% endfor %}
+				</div>
+				</div>
+			</div>
+			</div>
+			<div class="scrollable-container">
+			<div class="form-group" id="{{id}}-score-b">
+				<div class="scrollable range">
+				<div class="btn-group btn-group-justified" data-toggle="buttons">
+					{% for i in frange(_range['min'], _range['max']+1, _range['step']) %}
+						<label for="{{id}}-score-{{i}}-b" class="btn btn-default" id="{{id}}-score-{{i}}-b-label">
+							<input type="radio" name="{{id}}-score-b" id="{{id}}-score-{{i}}-b" value="{{i}}"></input>
 							{{pre_float_to_str(i)}}
 						</label>
 					{% endfor %}
