@@ -461,7 +461,7 @@ def admin_info_board_callback():
 @flask_login.login_required
 @excatch
 def admin_info_board_post_callback():
-	_ = request.forms
+	_ = request.form
 	if _ is not None:
 		data = {
 			'title':_['info_title'],
