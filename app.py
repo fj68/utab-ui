@@ -263,8 +263,9 @@ def draw_callback(n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
+	round_n = config_round_n()
 	data = tolist(draw_db(n).find())
-	return render_template('draw.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=n, data=data)
+	return render_template('draw.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, n=n, data=data)
 
 @app.route('/draw/<int:n>/edit')
 @flask_login.login_required
@@ -272,8 +273,9 @@ def draw_edit_callback(n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name()
+	round_n = config_round_n()
 	data = tolist(draw_db(n).find())
-	return render_template('draw_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=n, data=data, row_n=len(data), num_of_row=[i+1 for i in range(len(data))])
+	return render_template('draw_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, n=n, data=data, row_n=len(data), num_of_row=[i+1 for i in range(len(data))])
 
 @app.route('/draw/<int:n>/edit', methods=['POST'])
 @flask_login.login_required

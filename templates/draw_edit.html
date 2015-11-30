@@ -1,7 +1,7 @@
 {% extends "base.template" %}
 {% set no_info_board = true %}
 
-{% block title %}Edit Draw{% endblock %}
+{% block title %}Edit Draw for Round {{n}}{% endblock %}
 
 {% block head %}
 	{{ super() }}
@@ -18,12 +18,12 @@
 			var data = formatter(JSON.parse(REDIPS.drag.saveContent(document.querySelector('#dataset-table'), 'json')));
 			
 			$.ajax({
-				url: '/draw/{{round_n}}/edit',
+				url: '/draw/{{n}}/edit',
 				type: 'POST',
 				data: JSON.stringify(data),
 				contentType: 'application/json'
 			}).done(function(data){
-				location.href = '/draw/{{round_n}}/';
+				location.href = '/draw/{{n}}/';
 			}).fail(function(data){
 				var msgbox = $('#msgbox');
 				msgbox.html('<button type="button" class="close" onclick="$(\'#msgbox\').hide();"><span class="glyphicon glyphicon-remove" aris-hidden="true"></span></button><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
@@ -109,7 +109,7 @@
 
 <div id="msgbox" class="alert alert-danger" role="alert"></div>
 
-<a class="btn btn-default" href="/draw/{{round_n}}/">Cancel</a>
+<a class="btn btn-default" href="/draw/{{n}}/">Cancel</a>
 <a class="btn btn-success" href="javascript:save();">Save</a>
 
 <br>
