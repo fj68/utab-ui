@@ -221,8 +221,8 @@ def manual_callback():
 	try:
 		tournament_name = config_tournament_name(CODENAME)
 		return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name)
-	except:
-		return redirect('/')
+	except Exception as e:
+		return make_json_response({"txt": str(e)})
 
 # root
 @app.route('/')
