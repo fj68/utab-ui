@@ -220,7 +220,8 @@ def manual_callback():
 	#	return render_template('maintainance.html')
 	try:
 		tournament_name = config_tournament_name(CODENAME)
-		return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name)
+		round_n = config_round_n()
+		return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
 	except Exception as e:
 		return make_json_response({"txt": str(e)})
 
@@ -413,12 +414,13 @@ def info_board_callback():
 @flask_login.login_required
 def admin_info_board_callback():
 	tournament_name = config_tournament_name(CODENAME)
+	round_n = config_round_n()
 	data = db.info_board.find_one()
 	if data:
 		data.pop('_id')
 	else:
 		data = {}
-	return render_template('admin_info_board.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, data=data)
+	return render_template('admin_info_board.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data)
 
 @app.route('/admin/info-board/', methods=['POST'])
 @flask_login.login_required
