@@ -437,6 +437,7 @@ def info_board_callback():
 
 @app.route('/admin/info-board/')
 @flask_login.login_required
+@excatch
 def admin_info_board_callback():
 	raise FloatingPointError
 	tournament_name = config_tournament_name(CODENAME)
@@ -447,10 +448,6 @@ def admin_info_board_callback():
 	else:
 		data = {}
 	return render_template('admin_info_board.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data)
-
-@app.errorhandler(500)
-def ise_handler():
-	return render_template('500.html', e=traceback.format_exc())
 
 @app.route('/admin/info-board/', methods=['POST'])
 @flask_login.login_required
