@@ -298,7 +298,7 @@ def draw_callback(n):
 
 @app.route('/draw/<int:n>/edit')
 @flask_login.login_required
-@excatch
+@excatch_ajax
 def draw_edit_callback(n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')

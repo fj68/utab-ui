@@ -23,7 +23,7 @@
 				data: JSON.stringify(data),
 				contentType: 'application/json'
 			}).done(function(data){
-				if(data){
+				if(data.indexOf('Traceback (most recent call last):') !== -1){
 					var msgbox = $('#msgbox');
 					msgbox.html('<button type="button" class="close" onclick="$(\'#msgbox\').hide();"><span class="glyphicon glyphicon-remove" aris-hidden="true"></span></button><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> An error occurs<br><pre class="console">' + data + '</pre>');
 					msgbox.show();

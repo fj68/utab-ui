@@ -61,7 +61,7 @@
 						data: d,
 						contentType: 'application/json'
 					}).done(function(data){
-						if(data){
+						if(data.indexOf('Traceback (most recent call last):') !== -1){
 							$('#dlg-msgbox-content').html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> An error occurs!<br><pre class="console">' + data + '</pre>');
 							$('#dlg-msgbox').show();
 						}else{
