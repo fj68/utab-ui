@@ -1,14 +1,12 @@
 # TODO
 
 adjs評価
-drawコレクションとteamsコレクションをラウンドごとに持つように変更
 proceed_round前にadjとteamのballotが全部入力済みか確認
 選択済みアイテムの可視化
 adjs_editを再編集の際に値が選ばれているようにする
 editing mode : adjs_editでcancel押さずにウインドウを閉じるとstatusがeditingで残ってしまう
-複数回答
+複数回答保持
 チュートリアル
-以前のマッチアップを見られるように
 Controllerの肥大化をなんとかする
 Modelを切り分ける
 icon changer

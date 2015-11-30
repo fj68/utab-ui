@@ -32,9 +32,9 @@
 	
 	<div class="panel panel-default">
 		<div class="list-group">
-			<a class="list-group-item" href="/draw/">Draw for Round 1<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
-			<a class="list-group-item" href="/draw/">Draw for Round 2<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
-			<a class="list-group-item" href="/draw/">Draw for Round 3<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
+			{% for i in range(round_n) %}
+				<a class="list-group-item" href="/draw/{{loop.index}}/">Draw for Round {{loop.index}}<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
+			{% endfor %}
 		</div>
 	</div>
 	

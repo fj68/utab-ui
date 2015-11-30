@@ -120,7 +120,7 @@ def list_translater(src):
 		pt = store_value[1:]
 		item = store_value[0]
 		if isinstance(item[4], list):
-			data.append([item[0], speaker_name, pt[0], pt[1], pt[2], pt[3], pt[4], pt[5], 1 if item[1] else 0, item[2], item[3], item[4][0], item[4][1], item[4][2]])
+			data.append([item[0], speaker_name, pt[0], pt[1], pt[2], pt[3], pt[4], pt[5], 1 if item[1] else 0, item[2], item[3]] + item[4])
 		else:
 			data.append([item[0], speaker_name, pt[0], pt[1], pt[2], pt[3], pt[4], pt[5], 1 if item[1] else 0, item[2], item[3], item[4]])
 	data.sort(key=itemgetter(0, 1))
@@ -134,11 +134,7 @@ def json2list(src):
 
 def json2list_rym(src):
 	dest = json2list(src)
-	data = [
-			[it[0], it[1], it[2] + it[3], it[4] + it[5], it[6] + it[7], it[8], it[9], it[10], it[11]]
-		if len(it) == 12 else
-			[it[0], it[1], it[2] + it[3], it[4] + it[5], it[6] + it[7], it[8], it[9], it[10], it[11], it[12], it[13]]
-		for it in dest]
+	data = [[it[0], it[1], it[2] + it[3], it[4] + it[5], it[6] + it[7]] + it[7:] for it in dest]
 	return data
 
 if __name__ == '__main__':

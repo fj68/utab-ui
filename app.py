@@ -162,14 +162,20 @@ def round_db(d, n):
 def result_db(d, n):
 	return db['result' + str(n) + '_' + d]
 
+def draw_db(n):
+	return db['draw' + str(n)]
+
+def teams_db(n):
+	return db['teams' + str(n)]
+
 def comment_db(d, n):
 	return db['comment' + str(n) + '_' + d]
 
 def session_db():
 	return db['sessions']
 
-def team_info(name):
-	return first(db.teams.find({'name':name}))
+def team_info(n, name):
+	return first(teams_db(n).find({'name':name}))
 
 # list flattener
 def flatten(l):
@@ -252,34 +258,32 @@ def logout_callback():
 	flask_login.logout_user()
 	return redirect('/login/')
 
-@app.route('/draw/')
-def draw_callback():
+@app.route('/draw/<int:n>/')
+def draw_callback(n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
-	round_n = config_round_n()
-	data = tolist(db.draw.find())
-	return render_template('draw.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data)
+	data = tolist(draw_db(n).find())
+	return render_template('draw.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=n, data=data)
 
-@app.route('/draw/edit')
+@app.route('/draw/<int:n>/edit')
 @flask_login.login_required
-def draw_edit_callback():
+def draw_edit_callback(n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name()
-	round_n = config_round_n()
-	data = tolist(db.draw.find())
-	return render_template('draw_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data, row_n=len(data), num_of_row=[i+1 for i in range(len(data))])
+	data = tolist(draw_db(n).find())
+	return render_template('draw_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=n, data=data, row_n=len(data), num_of_row=[i+1 for i in range(len(data))])
 
-@app.route('/draw/edit', methods=['POST'])
+@app.route('/draw/<int:n>/edit', methods=['POST'])
 @flask_login.login_required
-def draw_edit_post_callback():
+def draw_edit_post_callback(n):
 	data = request.get_json()
 	if data is not None:
-		db.draw.remove()
+		draw_db(n).remove()
 		for item in data:
-			db.draw.insert({'gov':item['gov'], 'opp':item['opp'], 'chair':item['chair'], 'panel':item['panel'], 'venue':item['venue'], 'trainee':item['trainee']})
-	return redirect('/draw/')
+			draw_db(n).insert({'gov':item['gov'], 'opp':item['opp'], 'chair':item['chair'], 'panel':item['panel'], 'venue':item['venue'], 'trainee':item['trainee']})
+	return redirect('/draw/{0}'.format(n))
 
 @app.route('/adjs/')
 def adjs_callback():
@@ -310,8 +314,8 @@ def adjs_edit_callback(name):
 	data = first(round_db('adjs', round_n).find({'name':name}))
 	past_status = status_of('adjs', name, round_n)
 	status_of('adjs', name, round_n, 'editing')
-	gov = team_info(data['round']['gov'])
-	opp = team_info(data['round']['opp'])
+	gov = team_info(round_n, data['round']['gov'])
+	opp = team_info(round_n, data['round']['opp'])
 	config = db.config.find_one()
 	score_range = config['score_range_const']
 	reply_range = config['score_range_reply']
@@ -434,8 +438,8 @@ def admin_rollback_round_callback(n):
 	for i in xrange(n + 1, round_n - n + 1):
 		round_db('adjs', i).remove()
 		result_db('teams', i).remove()
-		db.draw.remove()
-		db.teams.remove()
+		draw_db(i).remove()
+		teams_db(i).remove()
 		
 	return redirect('/admin/')
 
@@ -480,14 +484,14 @@ def import_data(teams_data, draw_data, next_round):
 	draw = csv_reader(draw_data, lambda _, r: {'gov':r[0], 'opp':r[1], 'chair':not_empty([r[2]]), 'panel':not_empty(r[3:5]), 'venue':r[5], 'trainee':[]})
 	
 	if teams and draw:
-		db.teams.remove()
-		db.teams.insert(teams)
-		db.draw.remove()
-		db.draw.insert(draw)
+		teams_db(next_round).remove()
+		teams_db(next_round).insert(teams)
+		draw_db(next_round).remove()
+		draw_db(next_round).insert(draw)
 		
 		data_adjs = []
 		
-		for r_info in db.draw.find():
+		for r_info in draw_db(next_round).find():
 			for chair in r_info['chair']:
 				adj = {'timediff':[-1], 'status':'unsaved', 'round':r_info, 'name':chair, 'role':'chair'}
 				data_adjs.append(adj)

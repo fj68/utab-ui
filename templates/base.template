@@ -100,7 +100,9 @@
 						{% if admin %}
 						<li><a href="/admin/">Admin</a></li>
 						{% endif %}
-						<li><a href="/draw/">Draw</a></li>
+						{% for i in range(round_n) %}
+						<li><a href="/draw/{{loop.index}}/">Draw {{loop.index}}</a></li>
+						{% endfor %}
 						<li><a href="/adjs/">Score Sheets</a></li>
 					</ul>
 					{% if admin %}
