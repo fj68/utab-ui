@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	
+	<title>500 Internal Server Error</title>
+	
+	<!--<link rel="shortcut icon" href="favicon.ico">-->
+	<!--<link rel="stylesheet" href="main.css">-->
+	<script>
+		function toggle_techinfo(){
+			location.hash = (location.hash === '#techinfo') ? '' : '#techinfo';
+		}
+	</script>
+	<style>
+		#techinfo:not(:target) #techinfo_body {
+			display:none;
+		}
+		
+		#techinfo:target #techinfo_body {
+			display:block;
+		}
+		
+		#techinfo_body {
+			margin-top:15px;
+		}
+		
+		.console {
+			margin:5px;
+			padding:5px;
+			font-family:monospace;
+			font-size:12px;
+			line-height:1.5;
+			background-color:black;
+			color:white;
+			display:block;
+		}
+		
+		#techinfo {
+			padding:3px;
+			margin-bottom:0;
+			border:1px solid transparent;
+			background-color:lightblue;
+		}
+		
+		#techinfo:hover {
+			border:1px solid #3300cc;
+			cursor:pointer;
+		}
+		
+		#techinfo_title {
+			margin:3px;
+		}
+	</style>
+</head>
+<body>
+	<h1>500 Internal Server Error</h1>
+	<p>
+		We are sorry, but something goes wrong...<br>
+		Please contact administrator and show the following information.<br>
+	</p>
+	<div id="techinfo" onclick="toggle_techinfo();">
+		<h3 id="techinfo_title">Technical Information</h3>
+		<div id="techinfo_body">
+			<code class="console">
+				> {{e}}
+			</code>
+		</div>
+	</div>
+</body>
+</html>
