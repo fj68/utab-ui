@@ -49,8 +49,8 @@ def excatch(f):
 	def _(*args, **kwargs):
 		try:
 			return f(*args, **kwargs)
-		except Exception as e:
-			return make_text_response("{0}:{1}".format(e.__repr__(), str(e)))
+		except:
+			return render_template("500.html", e=traceback.format_exc())
 	return _
 
 # User Object for session control with flask.ext.login
