@@ -39,19 +39,18 @@
 		}
 		
 		$(document).ready(function(){
+			$('#info-board').hide();
 			$.ajax({
 				url: '/$$$_info_board_$$$'
 			}).success(function(data){
-				if(!data.body || data.body === ''){
-					hide_info_board();
-				}else{
+				if(data.body || data.body !== ''){
 					var info_title = data.title ? data.title : 'Information Board';
 					var info_body = marked(data.body);
 					$('#info-board-title').text(info_title);
 					$('#info-board-body').html(info_body);
+					$('#info-board').show();
 				}
 			}).error(function(data){
-				hide_info_board();
 				console.log(data.statusText);
 			});
 		});
@@ -75,6 +74,10 @@
 		}
 		.navbar .dropdown:hover > .dropdown-menu{
 			display: block;
+		}
+		
+		#info-board {
+			display:none;
 		}
 	</style>
 {% endblock %}</head>
