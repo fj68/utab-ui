@@ -93,7 +93,7 @@
 					</button>
 					<a class="navbar-brand" href="/home/" style="margin-right:0;padding-right:0;">
 						<img src="/static/icons/favicon.svg{# % if admin %}favicon-32x32.png{% else %}brand-32x32.png{% endif % #}" alt="logo" style="position:relative;top:-7px;left:-7px;float:left;" width="52px" height="32px"/>
-						<span style="margin-left:0;padding-left:0;">{{tournament_name}}</span>
+						<span style="margin-left:0;padding-left:0;margin-right:5px;padding-right:5px;">{{tournament_name}}</span>
 					</a>
 				</div>
 

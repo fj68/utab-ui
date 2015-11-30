@@ -1,27 +1,18 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-	<meta charset="utf-8">
+{% extends "base.template" %}
+
+{%block title %}Under Maintenance{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<h1>Under Maintenance <small>{{tournament_name}}</small></h1>
+	</div>
 	
-	<title>Service Not Available</title>
-	
-	<!--<link rel="shortcut icon" href="favicon.ico">-->
-	<!--<link rel="stylesheet" href="main.css">-->
-	<!--<script src="main.js" async defer></script>-->
-</head>
-<body>
-	<header>
-		<div id="page-header">
-			<h1>Maintenance: Service Not Available</h1>
-		</div>
-	</header>
-	<main>
-		<p>
-			Sorry, but we are now in maintenance.<br>
-		</p>
-		<p>
-		<a href="/admin/">admin interface</a>
-		</p>
-	</main>
-</body>
-</html>
+	<p>
+		We are sorry.<br>
+		This service is currently undergoing maintenance.<br>
+		<a href="javascript:location.reload(true);">Reload this page</a> later.<br>
+	</p>
+	<br>
+	<br>
+	<br>
+{% endblock %}	
