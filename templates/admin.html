@@ -6,9 +6,9 @@
 	{{ super() }}
 	
 	<script>
-		function maintainance(to){
+		function maintenance(to){
 			$.ajax({
-				url: '/admin/maintainance/' + to,
+				url: '/admin/maintenance/' + to,
 				type: 'GET'
 			}).done(function(data){
 				location.reload();
@@ -123,7 +123,7 @@
 			<div class="list-group">
 				<a class="list-group-item" href="/admin/config/"><span class="glyphicon glyphicon-cog"></span> General Config</a>
 				<a class="list-group-item" href="javascript:change_account();"><span class="glyphicon glyphicon-user"></span> Admin Account</a>
-				<a class="list-group-item" href="javascript:maintainance('{% if maintainance == true %}off{% else %}on{% endif %}');"><span class="glyphicon glyphicon-wrench"></span> Switch Maintainance Mode {% if maintainance == true %}Off{% else %}On{% endif %}</a>
+				<a class="list-group-item" href="javascript:maintenance('{% if maintenance == true %}off{% else %}on{% endif %}');"><span class="glyphicon glyphicon-wrench"></span> Switch Maintenance Mode {% if maintenance == true %}Off{% else %}On{% endif %}</a>
 				<a class="list-group-item" data-toggle="modal" data-target="#dialog" style="cursor:pointer;"><span class="glyphicon glyphicon-send"></span> Proceed to Round {{round_n+1}}</a>
 				<a class="list-group-item" href="javascript:rollback();"><span class="glyphicon glyphicon-repeat"></span> Rollback Round</a>
 				<a class="list-group-item" href="/admin/manual/"><span class="glyphicon glyphicon-book"></span> Admin Manual</a>

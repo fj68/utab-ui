@@ -150,14 +150,14 @@ def config_function_factory(key):
 			if record:
 				return record[key]
 			else:
-				db.general.insert({'maintainance':True, 'round_n':0, 'adj_timer':None})
+				db.general.insert({'maintenance':True, 'round_n':0, 'adj_timer':None})
 				return config_function_factory(key)()
 		else:
 			db.general.update({}, {'$set': {key:value}})
 	return _
 
 config_round_n = config_function_factory('round_n')
-config_maintainance = config_function_factory('maintainance')
+config_maintenance = config_function_factory('maintenance')
 config_adj_timer = config_function_factory('adj_timer')
 
 def round_db_function_factory(key):
@@ -239,8 +239,8 @@ def icon_manifest_callback():
 @flask_login.login_required
 @excatch
 def manual_callback():
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
@@ -250,8 +250,8 @@ def manual_callback():
 @app.route('/home/')
 @excatch
 def index_callback():
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	return render_template('index.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
@@ -289,8 +289,8 @@ def logout_callback():
 @app.route('/draw/<int:n>/')
 @excatch
 def draw_callback(n):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = tolist(draw_db(n).find())
@@ -300,8 +300,8 @@ def draw_callback(n):
 @flask_login.login_required
 @excatch_ajax
 def draw_edit_callback(n):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	tournament_name = config_tournament_name()
 	round_n = config_round_n()
 	data = tolist(draw_db(n).find())
@@ -321,8 +321,8 @@ def draw_edit_post_callback(n):
 @app.route('/adjs/')
 @excatch
 def adjs_callback():
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = sort_by_timediff(tolist(round_db('adjs', round_n).find()))
@@ -331,8 +331,8 @@ def adjs_callback():
 @app.route('/adjs/<name>/cancel/<int:round_n>')
 @excatch
 def adjs_edit_cancel_callback(name, round_n):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	if timediff_of('adjs', name, round_n)[0] == -1:
 		past_status = 'unsaved'
 	else:
@@ -343,8 +343,8 @@ def adjs_edit_cancel_callback(name, round_n):
 @app.route('/adjs/<name>/', methods=['GET'])
 @excatch
 def adjs_edit_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = first(round_db('adjs', round_n).find({'name':name}))
@@ -360,8 +360,8 @@ def adjs_edit_callback(name):
 @app.route('/adjs/<name>/', methods=['POST'])
 @excatch_ajax
 def adjs_edit_post_callback(name):
-	if config_maintainance() and not flask_login.current_user.is_authenticated():
-		return render_template('maintainance.html')
+	if config_maintenance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintenance.html')
 	data = request.get_json()
 	timer = config_adj_timer()
 	round_n = config_round_n()
@@ -392,8 +392,8 @@ def adjs_edit_post_callback(name):
 def admin_callback():
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
-	maintainance = config_maintainance()
-	return render_template('admin.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, maintainance=maintainance)
+	maintenance = config_maintenance()
+	return render_template('admin.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, maintenance=maintenance)
 
 @app.route('/admin/config/', methods=['GET'])
 @flask_login.login_required
@@ -502,12 +502,12 @@ def admin_account_callback():
 			return 'Fail: Password is incorrect.'
 	return 'Fail: No such name in database, \"{0}\"'.format(data['old_u'])
 
-@app.route('/admin/maintainance/<to>', methods=['GET'])
+@app.route('/admin/maintenance/<to>', methods=['GET'])
 @flask_login.login_required
 @excatch
-def admin_maintainance_callback(to):
+def admin_maintenance_callback(to):
 	round_n = config_round_n()
-	db.general.update({'round_n':round_n}, {'$set':{'maintainance':(to == 'on')}})
+	db.general.update({'round_n':round_n}, {'$set':{'maintenance':(to == 'on')}})
 	return redirect('/admin/')
 
 @app.route('/admin/data-importer/<int:n>', methods=['POST'])
@@ -548,9 +548,9 @@ def import_data(teams_data, draw_data, next_round):
 		
 		round_db('adjs', next_round).remove()
 		round_db('adjs', next_round).insert(data_adjs)
-		maintainance = config_maintainance()
+		maintenance = config_maintenance()
 		db.general.remove()
-		db.general.insert({'round_n':next_round, 'adj_timer':None, 'maintainance':maintainance})
+		db.general.insert({'round_n':next_round, 'adj_timer':None, 'maintenance':maintenance})
 		result_db('adjs', next_round).remove()
 		return True
 	return False

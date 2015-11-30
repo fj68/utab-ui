@@ -1,6 +1,4 @@
-# tab = 8
-
-app.py		main server program
-json2csv.py	lib to convert results file format
-static/		static files distributed by server (lib, fonts, icons, ...etc.)
-templates/	HTML template files
+app.py          main server program
+json2csv.py     lib to convert results file format
+static/         static files distributed by server (lib, fonts, icons, ...etc.)
+templates/      HTML template files
