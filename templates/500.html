@@ -54,16 +54,16 @@
 	</style>
 </head>
 <body>
-	<h1>500 Internal Server Error</h1>
+	<h1>An Error Occurs!</h1>
 	<p>
-		We are sorry, but something goes wrong...<br>
-		Please contact administrator and show the following information.<br>
+		We are sorry, but something goes wrong... X(<br>
+		Please contact the administrator and show the following information.<br>
 	</p>
 	<div id="techinfo" onclick="toggle_techinfo();">
 		<h3 id="techinfo_title">Technical Information</h3>
 		<div id="techinfo_body">
 			<code class="console">
-				> {{e}}
+				{{e|replace('\n', '<br>')|safe}}
 			</code>
 		</div>
 	</div>

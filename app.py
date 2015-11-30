@@ -6,7 +6,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 CODENAME="utab"
 
-import sys, os, csv, cStringIO, collections, json
+import sys, os, csv, cStringIO, collections, json, traceback, functools
 from time import time
 from urlparse import urlparse
 
@@ -46,12 +46,13 @@ ADMIN_PASSWORD = 'nimda'
 
 # exception-catcher for heroku
 def excatch(f):
-	def _(*args, **kwargs):
+	@functools.wraps(f)
+	def _excatch(*args, **kwargs):
 		try:
 			return f(*args, **kwargs)
 		except:
 			return render_template("500.html", e=traceback.format_exc())
-	return _
+	return _excatch
 
 # User Object for session control with flask.ext.login
 class User():
@@ -208,12 +209,15 @@ else:
 
 # favicon
 @app.route('/favicon.ico')
+@excatch
 def icon_ico_callback():
 	return app.send_static_file('icons/favicon.ico')
 @app.route('/apple-touch-icon.png')
+@excatch
 def icon_apple_callback():
 	return app.send_static_file('icons/apple-touch-icon.png')
 @app.route('/icons/manifest.json')
+@excatch
 def icon_manifest_callback():
 	data = {}
 	with open('./templates/manifest.json') as f:
@@ -229,12 +233,13 @@ def manual_callback():
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
 	tournament_name = config_tournament_name(CODENAME)
-	#round_n = config_round_n()
+	round_n = config_round_n()
 	return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
 
 # root
 @app.route('/')
 @app.route('/home/')
+@excatch
 def index_callback():
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -247,8 +252,10 @@ def next_is_valid(next):
 	return next and next[:1] == '/'
 
 @app.route('/login/', methods=['GET', 'POST'])
+@excatch
 def login_callback():
 	tournament_name = config_tournament_name(CODENAME)
+	round_n = config_round_n()
 	data = request.form if request.method == 'POST' else None
 	if data:
 		user = session_db().find_one({'name':data['username']})
@@ -262,14 +269,16 @@ def login_callback():
 			
 			return redirect(next or '/admin/')
 		flask_login.flash("Wrong username or password", category='error')
-	return render_template('login.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name)
+	return render_template('login.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
 
 @app.route('/logout/')
+@excatch
 def logout_callback():
 	flask_login.logout_user()
 	return redirect('/login/')
 
 @app.route('/draw/<int:n>/')
+@excatch
 def draw_callback(n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -280,6 +289,7 @@ def draw_callback(n):
 
 @app.route('/draw/<int:n>/edit')
 @flask_login.login_required
+@excatch
 def draw_edit_callback(n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -290,6 +300,7 @@ def draw_edit_callback(n):
 
 @app.route('/draw/<int:n>/edit', methods=['POST'])
 @flask_login.login_required
+@excatch
 def draw_edit_post_callback(n):
 	data = request.get_json()
 	if data is not None:
@@ -299,6 +310,7 @@ def draw_edit_post_callback(n):
 	return redirect('/draw/{0}'.format(n))
 
 @app.route('/adjs/')
+@excatch
 def adjs_callback():
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -308,6 +320,7 @@ def adjs_callback():
 	return render_template('adjs.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data, timediff2str=timediff2str)
 
 @app.route('/adjs/<name>/cancel/<int:round_n>')
+@excatch
 def adjs_edit_cancel_callback(name, round_n):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -319,6 +332,7 @@ def adjs_edit_cancel_callback(name, round_n):
 	return redirect('/adjs/')
 
 @app.route('/adjs/<name>/', methods=['GET'])
+@excatch
 def adjs_edit_callback(name):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -335,6 +349,7 @@ def adjs_edit_callback(name):
 	return render_template('adjs_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, past_status=past_status, frange=frange, round_n=round_n, data=data, gov=gov, opp=opp, score_range=score_range, reply_range=reply_range, pre_float_to_str=pre_float_to_str)
 
 @app.route('/adjs/<name>/', methods=['POST'])
+@excatch
 def adjs_edit_post_callback(name):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -364,6 +379,7 @@ def adjs_edit_post_callback(name):
 @app.route('/admin/')
 @app.route('/admin/home/')
 @flask_login.login_required
+@excatch
 def admin_callback():
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
@@ -372,6 +388,7 @@ def admin_callback():
 
 @app.route('/admin/config/', methods=['GET'])
 @flask_login.login_required
+@excatch
 def admin_config_callback():
 	tournament_name = config_tournament_name(CODENAME)
 	data = db.config.find_one()
@@ -379,6 +396,7 @@ def admin_config_callback():
 
 @app.route('/admin/config/', methods=['POST'])
 @flask_login.login_required
+@excatch
 def admin_config_post_callback():
 	_ = request.form
 	if _ is not None:
@@ -420,6 +438,7 @@ def info_board_callback():
 @app.route('/admin/info-board/')
 @flask_login.login_required
 def admin_info_board_callback():
+	raise FloatingPointError
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = db.info_board.find_one()
@@ -429,8 +448,13 @@ def admin_info_board_callback():
 		data = {}
 	return render_template('admin_info_board.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data)
 
+@app.errorhandler(500)
+def ise_handler():
+	return render_template('500.html', e=traceback.format_exc())
+
 @app.route('/admin/info-board/', methods=['POST'])
 @flask_login.login_required
+@excatch
 def admin_info_board_post_callback():
 	_ = request.form
 	if _ is not None:
@@ -445,6 +469,7 @@ def admin_info_board_post_callback():
 
 @app.route('/admin/rollback/<int:n>', methods=['GET', 'DELETE'])
 @flask_login.login_required
+@excatch
 def admin_rollback_round_callback(n):
 	round_n = config_round_n()
 	db.general.update({'round_n':round_n}, {'$set':{'round_n':n}})
@@ -459,6 +484,7 @@ def admin_rollback_round_callback(n):
 
 @app.route('/admin/account', methods=['POST'])
 @flask_login.login_required
+@excatch
 def admin_account_callback():
 	data = request.get_json()
 	user = session_db().find_one({'name':data['old_u']})
@@ -473,6 +499,7 @@ def admin_account_callback():
 
 @app.route('/admin/maintainance/<to>', methods=['GET'])
 @flask_login.login_required
+@excatch
 def admin_maintainance_callback(to):
 	round_n = config_round_n()
 	db.general.update({'round_n':round_n}, {'$set':{'maintainance':(to == 'on')}})
@@ -480,6 +507,7 @@ def admin_maintainance_callback(to):
 
 @app.route('/admin/data-importer/<int:n>', methods=['POST'])
 @flask_login.login_required
+@excatch
 def admin_proceed_round_callback(n):
 	round_n = config_round_n()
 	files = request.files
@@ -570,18 +598,21 @@ def get_results_as_json(n):
 
 @app.route('/data/round<int:n>/Results<int:m>.json')
 @flask_login.login_required
+@excatch
 def data_ballots_json_callback(n, m):
 	#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
 	return make_json_response(get_results_as_json(n), 'Results{0}.json'.format(m))
 
 @app.route('/data/round<int:n>/Results<int:m>.csv')
 @flask_login.login_required
+@excatch
 def data_ballots_csv_callback(n, m):
 	data = json2list_rym(get_results_as_json(n))
 	return make_csv_response(data, 'Results{0}.csv'.format(m), header=['team name', 'name', '1st score', '2nd score', '3rd score', 'win', 'opponent', 'side'])
 
 @app.route('/data/round<int:n>/Results<int:m>_sep.csv')
 @flask_login.login_required
+@excatch
 def data_ballots_csv_sep_callback(n, m):
 	data = json2list(get_results_as_json(n))
 	return make_csv_response(data, 'Results{0}_sep.csv'.format(m), header=['team name', 'name', '1st score A', '1st score B', '2nd score A', '2nd score B', '3rd score A', '3rd score B', 'win', 'opponent', 'side'])
