@@ -407,15 +407,19 @@ def info_board_callback():
 	return make_json_response(data)
 
 @app.route('/admin/info-board/')
-#@flask_login.login_required
+@flask_login.login_required
 def admin_info_board_callback():
-	tournament_name = config_tournament_name(CODENAME)
-	data = db.info_board.find_one()
-	if data:
-		data.pop('_id')
+	try:
+		tournament_name = config_tournament_name(CODENAME)
+		data = db.info_board.find_one()
+		if data:
+			data.pop('_id')
+		else:
+			data = {}
+	except Exception as e:
+		return make_json_response({"str": e.__str__(), "repr": e.__repr__()})
 	else:
-		data = {}
-	return render_template('admin_info_board.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, data=data)
+		return render_template('admin_info_board.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, data=data)
 
 @app.route('/admin/info-board/', methods=['POST'])
 @flask_login.login_required
