@@ -23,7 +23,13 @@
 				data: JSON.stringify(data),
 				contentType: 'application/json'
 			}).done(function(data){
-				location.href = '/draw/{{n}}/';
+				if(data){
+					var msgbox = $('#msgbox');
+					msgbox.html('<button type="button" class="close" onclick="$(\'#msgbox\').hide();"><span class="glyphicon glyphicon-remove" aris-hidden="true"></span></button><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> An error occurs<br><pre class="console">' + data + '</pre>');
+					msgbox.show();
+				}else{
+					location.href = '/draw/{{n}}/';
+				}
 			}).fail(function(data){
 				var msgbox = $('#msgbox');
 				msgbox.html('<button type="button" class="close" onclick="$(\'#msgbox\').hide();"><span class="glyphicon glyphicon-remove" aris-hidden="true"></span></button><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + data.status + ' ' + data.statusText);
@@ -98,6 +104,17 @@
 		
 		td {
 			text-align:center;
+		}
+		
+		.console {
+			background-color:black;
+			color:white;
+			margin-top:5px;
+			padding:5px;
+			font-family:monospace;
+			font-size:12px;
+			display:block;
+			overflow:scroll;
 		}
 	</style>
 {% endblock %}

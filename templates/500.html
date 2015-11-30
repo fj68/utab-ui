@@ -7,20 +7,7 @@
 	
 	<!--<link rel="shortcut icon" href="favicon.ico">-->
 	<!--<link rel="stylesheet" href="main.css">-->
-	<script>
-		function toggle_techinfo(){
-			location.hash = (location.hash === '#techinfo') ? '' : '#techinfo';
-		}
-	</script>
 	<style>
-		#techinfo:not(:target) #techinfo_body {
-			display:none;
-		}
-		
-		#techinfo:target #techinfo_body {
-			display:block;
-		}
-		
 		#techinfo_body {
 			margin-top:15px;
 		}
@@ -28,24 +15,19 @@
 		.console {
 			margin:5px;
 			padding:5px;
-			font-family:monospace;
-			font-size:12px;
-			line-height:1.5;
 			background-color:black;
 			color:white;
+			font-family:monospace;
+			font-size:12px;
 			display:block;
+			overflow:scroll;
 		}
 		
 		#techinfo {
 			padding:3px;
 			margin-bottom:0;
-			border:1px solid transparent;
 			background-color:lightblue;
-		}
-		
-		#techinfo:hover {
 			border:1px solid #3300cc;
-			cursor:pointer;
 		}
 		
 		#techinfo_title {
@@ -59,12 +41,10 @@
 		We are sorry, but something goes wrong... X(<br>
 		Please contact the administrator and show the following information.<br>
 	</p>
-	<div id="techinfo" onclick="toggle_techinfo();">
+	<div id="techinfo">
 		<h3 id="techinfo_title">Technical Information</h3>
 		<div id="techinfo_body">
-			<code class="console">
-				{{e|replace('\n', '<br>')|safe}}
-			</code>
+			<pre class="console">{{e|safe}}</code>
 		</div>
 	</div>
 </body>

@@ -11,7 +11,11 @@
 				url: '/admin/maintainance/' + to,
 				type: 'GET'
 			}).done(function(data){
-				location.reload();
+				if(data){
+					alert(data);
+				}else{
+					location.reload();
+				}
 			}).fail(function(data){
 				alert('Error: ' + data.status + ' ' + data.statusText);
 			});
@@ -43,8 +47,12 @@
 				contentType: 'application/json',
 				dataType:'text'
 			}).done(function(data){
-				alert(data);
-				location.href='/login/';
+				if(data !== 'Success'){
+					alert(data);
+				}else{
+					alert(data);
+					location.href='/login/';
+				}
 			}).fail(function(data){
 				alert('Error: ' + data.status + ' ' + data.statusText);
 			});
@@ -58,8 +66,12 @@
 						url: '/admin/rollback/' + n,
 						type: 'GET'
 					}).done(function(data){
-						alert('Import data and proceed to next round immidiately.\n\n(Page will be reloaded)');
-						location.reload();
+						if(data){
+							alert(data);
+						}else{
+							alert('Import data and proceed to next round immidiately.\n\n(Page will be reloaded)');
+							location.reload();
+						}
 					}).fail(function(data){
 						alert('Error: ' + data.status + ' ' + data.statusText);
 					});

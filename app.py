@@ -54,6 +54,15 @@ def excatch(f):
 			return render_template("500.html", e=traceback.format_exc())
 	return _excatch
 
+def excatch_ajax(f):
+	@functools.wraps(f)
+	def _excatch_ajax(*args, **kwargs):
+		try:
+			return f(*args, **kwargs)
+		except:
+			return traceback.format_exc()
+	return _excatch_ajax
+
 # User Object for session control with flask.ext.login
 class User():
 	def __init__(self, name, active=True):
@@ -349,7 +358,7 @@ def adjs_edit_callback(name):
 	return render_template('adjs_edit.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, past_status=past_status, frange=frange, round_n=round_n, data=data, gov=gov, opp=opp, score_range=score_range, reply_range=reply_range, pre_float_to_str=pre_float_to_str)
 
 @app.route('/adjs/<name>/', methods=['POST'])
-@excatch
+@excatch_ajax
 def adjs_edit_post_callback(name):
 	if config_maintainance() and not flask_login.current_user.is_authenticated():
 		return render_template('maintainance.html')
@@ -439,7 +448,6 @@ def info_board_callback():
 @flask_login.login_required
 @excatch
 def admin_info_board_callback():
-	raise FloatingPointError
 	tournament_name = config_tournament_name(CODENAME)
 	round_n = config_round_n()
 	data = db.info_board.find_one()
@@ -453,7 +461,7 @@ def admin_info_board_callback():
 @flask_login.login_required
 @excatch
 def admin_info_board_post_callback():
-	_ = request.form
+	_ = request.forms
 	if _ is not None:
 		data = {
 			'title':_['info_title'],
