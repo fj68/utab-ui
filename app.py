@@ -44,6 +44,15 @@ login_manager.init_app(app)
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'nimda'
 
+# exception-catcher for heroku
+def excatch(f):
+	def _(*args, **kwargs):
+		try:
+			return f(*args, **kwargs)
+		except Exception as e:
+			return make_text_response("{0}:{1}".format(e.__repr__(), str(e)))
+	return _
+
 # User Object for session control with flask.ext.login
 class User():
 	def __init__(self, name, active=True):
@@ -215,15 +224,13 @@ def icon_manifest_callback():
 # manual
 @app.route('/admin/manual/')
 @flask_login.login_required
+@excatch
 def manual_callback():
-	#if config_maintainance() and not flask_login.current_user.is_authenticated():
-	#	return render_template('maintainance.html')
-	try:
-		tournament_name = config_tournament_name(CODENAME)
-		round_n = config_round_n()
-		return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
-	except Exception as e:
-		return make_json_response({"txt": str(e)})
+	if config_maintainance() and not flask_login.current_user.is_authenticated():
+		return render_template('maintainance.html')
+	tournament_name = config_tournament_name(CODENAME)
+	#round_n = config_round_n()
+	return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
 
 # root
 @app.route('/')
