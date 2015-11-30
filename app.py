@@ -218,8 +218,11 @@ def icon_manifest_callback():
 def manual_callback():
 	#if config_maintainance() and not flask_login.current_user.is_authenticated():
 	#	return render_template('maintainance.html')
-	tournament_name = config_tournament_name(CODENAME)
-	return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name)
+	try:
+		tournament_name = config_tournament_name(CODENAME)
+		return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name)
+	except:
+		return redirect('/')
 
 # root
 @app.route('/')
