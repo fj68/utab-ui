@@ -12,3 +12,5 @@
  - icon changer
  - doc
  - 複数ユーザ
+
+ - info_boardはいちいちmarkedするのではなく、保存時にmarkedしたものを格納するようにしたほうがよい？
