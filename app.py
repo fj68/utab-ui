@@ -396,8 +396,9 @@ def admin_callback():
 @excatch
 def admin_config_callback():
 	tournament_name = config_tournament_name(CODENAME)
+	round_n = config_round_n()
 	data = db.config.find_one()
-	return render_template('admin_config.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, data=data)
+	return render_template('admin_config.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n, data=data)
 
 @app.route('/admin/config/', methods=['POST'])
 @flask_login.login_required
