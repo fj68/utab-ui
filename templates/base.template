@@ -81,10 +81,11 @@
 		#info-board {
 			display:none;
 		}
+		
 	</style>
 {% endblock %}</head>
 <body>
-	<header>{% block header %}
+	<header id="top">{% block header %}
 	{% set admin = current_user.is_authenticated() %}
 		<nav class="navbar navbar-{% if admin %}inverse{% else %}default{% endif %}">
 			<div class="container-fluid">
@@ -166,9 +167,14 @@
 			{% block content %}{% endblock %}
 		</div>
 	</main>
+	
 	<footer>
 		<div class="container">
-			{% block footer %}{% endblock %}
+			{% block footer %}
+				<hr>
+				<a class="pull-right" href="#top">Back to top <span class="glyphicon glyphicon-plane"></span></a><br>
+				<br>
+			{% endblock %}
 		</div>
 	</footer>
 </body>
