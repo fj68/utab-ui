@@ -245,6 +245,14 @@ def manual_callback():
 		return render_template('maintenance.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
 	return render_template('man.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
 
+# tutor
+@app.route('/tutor/')
+@excatch
+def tutor_callback():
+	tournament_name = config_tournament_name(CODENAME)
+	round_n = config_round_n()
+	return render_template('tutor.html', PROJECT_NAME=CODENAME, tournament_name=tournament_name, round_n=round_n)
+
 # root
 @app.route('/')
 @app.route('/home/')

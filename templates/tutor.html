@@ -1,0 +1,74 @@
+{% extends "base.template" %}
+{% set no_info_board = true %}
+
+{% block title %}点数入力画面の操作方法{% endblock %}
+
+{% block head %}
+	{{ super() }}
+	
+	<style>
+		code {
+			margin:10px 15px;
+			display:block;
+			font-family:monospace;
+			font-size:10pt;
+		}
+		
+		.hint {
+			margin:20px 15px;
+			padding:15px;
+			background-color:#eeeeee;
+			border:1px solid #cccccc;
+			border-radius:7px;
+		}
+		
+		p img,
+		.hint img {
+			margin:15px;
+			border:1px solid #cccccc;
+		}
+		
+		.hint h4 {
+			margin-bottom:15px;
+			padding-bottom:5px;
+			border-bottom:1px solid #cccccc;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<h1 class="page-header">点数入力画面の操作方法</h1>
+	
+	<p>
+		配布されたパンフレットに記載されているQRコードを読み取るか、以下のリンクをクリックしてサイトにアクセスしてください。<br>
+		<code><a href="http://pdpda.herokuapp.com">http://pdpda.herokuapp.com/</a></code>
+		すると、以下のようなページが表示されますので、「Score Sheet」をクリックします。<br>
+		<img src="/static/img/tutor/Screenshot_001.png" width="250px" height="430px" alt="ホーム画面"><br>
+	</p>
+	
+	<div class="hint">
+		<h4>メンテナンス中の画面が表示される場合</h4>
+		サイトのメンテナンス中や、試合が始まっていない場合、このようなページが表示されることがあります。<br>
+		<img src="/static/img/tutor/Screenshot_000.png" alt="メンテナンス中画面" width="250px" height="380px"><br>
+		そのときは時間をおいて再読込するか、スタッフの指示に従ってください。<br>
+	</div>
+	
+	<p>	
+		「Score Sheet」のページが表示されたら、下にスクロールして自分の名前を探します。<br>
+		<img src="/static/img/tutor/Screenshot_002.png" alt="Score Sheet画面2" width="250px" height="420px"><br>
+		自分の名前をクリックすると、スコアシートの入力画面が表示されます。<br>
+		<img src="/static/img/tutor/Screenshot_003.png" alt="Score Sheet編集画面1" width="250px" height="380px"><br>
+		マッチアップを確認しつつ、勝ったチーム、各スピーカーの内容点と表現点を入力します。<br>
+		マッチアップや点数欄は左右にスワイプしてスライドすることができます。<br>
+		<img src="/static/img/tutor/Screenshot_004.png" alt="Score Sheet編集画面2" width="250px" height="420px"><br>
+		点数入力が終了したら、ページの一番下にある「Save」ボタンを押します。<br>
+		<img src="/static/img/tutor/Screenshot_005.png" alt="Score Sheet編集画面3" width="250px" height="380px"><br>
+		すると、確認画面が表示されます。<br>
+		<img src="/static/img/tutor/Screenshot_006.png" alt="Score Sheet確認画面1" width="250px" height="380px"><br>
+		自分の名前やチーム、部屋、点数、勝敗を確認し、「Send」ボタンを押すと、結果が送信されます。<br>
+		<img src="/static/img/tutor/Screenshot_007.png" alt="Score Sheet確認画面2" width="250px" height="400px"><br>
+		「Score Sheet」のページが表示され、「Thanks! ...」というメッセージが表示されていたら完了です。<br>
+		<img src="/static/img/tutor/Screenshot_008.png" alt="Score Sheet画面2" width="250px" height="420px"><br>
+		ラウンドが進んだにも関わらず、そのラウンド用の「Score Sheet」ページが表示されない場合は、再読込すると表示されます。<br>
+	</p>
+{% endblock %}
