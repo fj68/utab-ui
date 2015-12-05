@@ -6,3 +6,6 @@ bin/
 include/
 lib/
 local/
+
+static/img/tutor/.org/
+*.org.*
