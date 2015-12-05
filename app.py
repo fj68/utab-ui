@@ -628,7 +628,7 @@ def data_ballots_csv_callback(n, m):
 @excatch
 def data_ballots_csv_sep_callback(n, m):
 	data = json2list(get_results_as_json(n))
-	return make_csv_response(data, 'Results{0}_sep.csv'.format(m), header=['team name', 'name', '1st score A', '1st score B', '2nd score A', '2nd score B', '3rd score A', '3rd score B', 'win', 'opponent', 'side'])
+	return make_csv_response(data, 'Results{0}_sep.csv'.format(m), header=['team name', 'name', '1st score (Content)', '1st score (Manner)', '2nd score (Content)', '2nd score (Manner)', '3rd score (Content)', '3rd score (Manner)', 'win', 'opponent', 'side', 'from'])
 
 if __name__ == '__main__':
 	if len(sys.argv) == 2:
