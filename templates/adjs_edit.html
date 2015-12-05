@@ -23,7 +23,7 @@
 				type:'GET',
 				async:(userAgent.indexOf('msie') != -1)
 			}).done(function(data){
-				alert()
+				alert();
 			});
 			return 'wait';
 		}
@@ -443,6 +443,7 @@
 		
 		<div class="panel-body">
 			<div class="form-group" id="{{id}}-name">
+				<label>Name</label>
 				<div class="btn-group-vertical" data-toggle="buttons">
 					{% for speaker in speakers %}
 						<label for="{{id}}-name-{{nows(speaker)}}" class="btn btn-default" id="{{id}}-name-{{nows(speaker)}}-label" onclick="select_speaker('{{side}}', '{{nows(speaker)}}');" {# % if id == 'pm' or id == 'lo' %}onclick="select_speaker_{{id}}('{{nows(speaker)}}');"{% endif % #}>
@@ -452,8 +453,9 @@
 					{% endfor %}
 				</div>
 			</div>
-			<div class="scrollable-container">
 			<div class="form-group" id="{{id}}-score-a">
+			<label>Content</label>
+			<div class="scrollable-container">
 				<div class="scrollable range">
 				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					{% for i in frange(_range['min'], _range['max']+1, _range['step']) %}
@@ -466,8 +468,9 @@
 				</div>
 			</div>
 			</div>
-			<div class="scrollable-container">
 			<div class="form-group" id="{{id}}-score-b">
+			<label>Manner</label>
+			<div class="scrollable-container">
 				<div class="scrollable range">
 				<div class="btn-group btn-group-justified" data-toggle="buttons">
 					{% for i in frange(_range['min'], _range['max']+1, _range['step']) %}
