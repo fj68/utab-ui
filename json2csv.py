@@ -134,14 +134,14 @@ def json2list(src):
 
 def json2list_rym(src):
 	dest = json2list(src)
-	data = [[it[0], it[1], it[2] + it[3], it[4] + it[5], it[6] + it[7]] + it[7:] for it in dest]
+	data = [[it[0], it[1], it[2] + it[3], it[4] + it[5], it[6] + it[7]] + it[8:] for it in dest]
 	return data
 
 if __name__ == '__main__':
 	header = ['team name', 'name', '1st score', '2nd score', '3rd score', 'win', 'opponent', 'side']
 	json_src = sys.stdin.read()
 	src = json.loads(json_src)
-	data = json2list(src)
+	data = json2list_rym(src)
 	csv_data = csv_writer(data, header)
 	sys.stdout.write(csv_data)
 
